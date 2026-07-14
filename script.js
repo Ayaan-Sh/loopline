@@ -17,58 +17,169 @@
   }
 })();
 
-/* ---------- Sliding nav underline (Apple/Stripe-style hover line) ---------- */
+/* ---------- Sliding nav underline (Apple/Stripe-style hover line) + scrollspy ---------- */
 (function() {
   var navLinks = document.querySelector('.nav-links');
   var indicator = document.querySelector('.nav-indicator');
   if (!navLinks || !indicator) return;
 
   var links = Array.prototype.slice.call(navLinks.querySelectorAll('a'));
+  var linkMap = {};
+  links.forEach(function(l) {
+    var id = l.getAttribute('href').replace('#', '');
+    linkMap[id] = l;
+  });
 
-  function moveTo(el) {
-    indicator.style.width = el.offsetWidth + 'px';
-    indicator.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+  var isHovering = false;
+  var activeLink = null;
+  var shownLink = null;
+
+  function moveIndicatorTo(link) {
+    shownLink = link;
+    indicator.style.width = link.offsetWidth + 'px';
+    indicator.style.transform = 'translateX(' + link.offsetLeft + 'px)';
   }
+  function showIndicator() { navLinks.classList.add('show-indicator'); }
+  function hideIndicator() { navLinks.classList.remove('show-indicator'); }
 
   links.forEach(function(link) {
     link.addEventListener('mouseenter', function() {
-      navLinks.classList.add('is-hovering');
-      moveTo(link);
+      isHovering = true;
+      moveIndicatorTo(link);
+      showIndicator();
     });
     link.addEventListener('focus', function() {
-      navLinks.classList.add('is-hovering');
-      moveTo(link);
+      isHovering = true;
+      moveIndicatorTo(link);
+      showIndicator();
     });
   });
 
   navLinks.addEventListener('mouseleave', function() {
-    navLinks.classList.remove('is-hovering');
+    isHovering = false;
+    if (activeLink) { moveIndicatorTo(activeLink); showIndicator(); }
+    else { hideIndicator(); }
   });
 
   navLinks.addEventListener('focusout', function(e) {
     if (!navLinks.contains(e.relatedTarget)) {
-      navLinks.classList.remove('is-hovering');
+      isHovering = false;
+      if (activeLink) { moveIndicatorTo(activeLink); showIndicator(); }
+      else { hideIndicator(); }
     }
+  });
+
+  window.addEventListener('resize', function() {
+    if (shownLink) moveIndicatorTo(shownLink);
+  });
+
+  // scrollspy: highlight + slide the indicator to whichever section is in view
+  var sectionEls = Object.keys(linkMap)
+    .map(function(id) { return document.getElementById(id); })
+    .filter(Boolean);
+
+  if (sectionEls.length && 'IntersectionObserver' in window) {
+    var spyObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var link = linkMap[entry.target.id];
+        if (!link) return;
+        links.forEach(function(l) { l.classList.remove('nav-active'); });
+        link.classList.add('nav-active');
+        activeLink = link;
+        if (!isHovering) { moveIndicatorTo(link); showIndicator(); }
+      });
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+
+    sectionEls.forEach(function(el) { spyObserver.observe(el); });
+  }
+})();
+
+/* ---------- Sticky header polish ---------- */
+(function() {
+  var header = document.querySelector('header');
+  if (!header) return;
+  function onScroll() {
+    if (window.scrollY > 12) header.classList.add('is-scrolled');
+    else header.classList.remove('is-scrolled');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+/* ---------- Scroll-reveal on entry ---------- */
+(function() {
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function tagGroup(selector, staggerMs) {
+    var items = document.querySelectorAll(selector);
+    items.forEach(function(el, idx) {
+      el.classList.add('reveal');
+      if (staggerMs) el.style.transitionDelay = (idx * staggerMs) + 'ms';
+    });
+  }
+
+  tagGroup('.section-head', 0);
+  tagGroup('.service-card', 90);
+  tagGroup('.process-step', 90);
+  tagGroup('.work-carousel, .work-dots', 0);
+  tagGroup('.contact-info, #contact-form', 100);
+
+  if (reduced || !('IntersectionObserver' in window)) return;
+
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(function(el) {
+    revealObserver.observe(el);
   });
 })();
 
 document.getElementById('contact-form').addEventListener('submit', function(e) {
   e.preventDefault();
-  var name = this.name.value.trim();
-  var company = this.company.value.trim();
-  var email = this.email.value.trim();
-  var message = this.message.value.trim();
+  var form = this;
+  var status = document.getElementById('form-status');
+  var submitBtn = form.querySelector('button[type="submit"]');
+  var originalLabel = submitBtn.textContent;
 
-  var subject = encodeURIComponent('Project inquiry from ' + name + (company ? ' (' + company + ')' : ''));
-  var body = encodeURIComponent(
-    'Name: ' + name + '\n' +
-    'Company: ' + company + '\n' +
-    'Email: ' + email + '\n\n' +
-    message
-  );
+  status.textContent = 'Sending...';
+  status.classList.remove('form-status-success', 'form-status-error');
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = '0.6';
 
-  window.location.href = 'mailto:hello@loopline.co?subject=' + subject + '&body=' + body;
-  document.getElementById('form-status').textContent = 'Opening your email client...';
+  var formData = new FormData(form);
+
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Accept': 'application/json' },
+    body: formData
+  })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        status.textContent = "Thanks — we've got your message and will get back to you within 1–2 business days.";
+        status.classList.add('form-status-success');
+        form.reset();
+      } else {
+        status.textContent = data.message || "Something went wrong — please try again or email us directly.";
+        status.classList.add('form-status-error');
+      }
+    })
+    .catch(function() {
+      status.textContent = "Couldn't send that — please try again or email us directly at hello@loopline.co.";
+      status.classList.add('form-status-error');
+    })
+    .finally(function() {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '';
+      submitBtn.textContent = originalLabel;
+    });
 });
 
 /* ---------- Recent work: 3D circular carousel ---------- */
