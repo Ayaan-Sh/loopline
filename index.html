@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>looplines-Automation systems for startups</title>
+<title>Loopline — Automation systems for startups</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -13,12 +13,13 @@
 
 <header>
   <div class="wrap nav">
-    <div class="logo"><span class="dot"></span>looplines</div>
+    <div class="logo"><span class="dot"></span>Loopline</div>
     <nav class="nav-links">
       <a href="#services">Services</a>
       <a href="#work">Work</a>
       <a href="#process">Process</a>
       <a href="#contact">Contact</a>
+      <span class="nav-indicator" aria-hidden="true"></span>
     </nav>
     <a href="#contact" class="btn btn-sm">Start a project</a>
   </div>
@@ -29,7 +30,7 @@
   <div class="wrap hero-inner">
     <span class="eyebrow">● Automation systems for startups</span>
     <h1 class="hero-headline">The repetitive work stops <em>here</em>.</h1>
-    <p class="hero-sub">I design and build custom automation tools that take the manual, repeatable parts of running a startup data entry, notifications, reporting, hand-offs between tools off your team's plate.</p>
+    <p class="hero-sub">We design and build custom automation tools that take the manual, repeatable parts of running a startup data entry, notifications, reporting, hand-offs between tools off your team's plate.</p>
     <div class="hero-ctas">
       <a href="#contact" class="btn">Book a free scoping call</a>
       <a href="#work" class="btn btn-ghost">See recent work</a>
@@ -95,34 +96,51 @@
     <div class="section-head">
       <div>
         <div class="section-eyebrow">Recent work</div>
-        <h2 class="section-title">A couple of things I've built recently.</h2>
+        <h2 class="section-title">A couple of things we've built recently.</h2>
       </div>
       <p class="section-desc">Early-stage portfolio details anonymized, more case studies coming as projects wrap up.</p>
     </div>
-    <div class="work-grid">
-      <div class="work-card">
-        <span class="work-tag">Seed-stage · B2B SaaS</span>
-        <h3>Lead-routing & Slack alerts</h3>
-        <div class="work-row"><span class="label">Problem</span><span>Sales lead was manually checking a signup spreadsheet and pinging teammates by hand.</span></div>
-        <div class="work-row"><span class="label">Built</span><span>An automation that enriches new signups and routes a Slack alert to the right rep in real time.</span></div>
-        <p class="work-outcome">Outcome: leads now get a first response within minutes instead of hours, with zero manual checking.</p>
+
+    <div class="work-carousel">
+      <button class="work-arrow" id="work-prev" type="button" aria-label="Previous work">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+
+      <div class="work-stage">
+        <div class="work-track" id="work-track">
+          <article class="work-card" data-index="0">
+            <span class="work-tag">Seed-stage · B2B SaaS</span>
+            <h3>Lead-routing & Slack alerts</h3>
+            <div class="work-row"><span class="label">Problem</span><span>Sales lead was manually checking a signup spreadsheet and pinging teammates by hand.</span></div>
+            <div class="work-row"><span class="label">Built</span><span>An automation that enriches new signups and routes a Slack alert to the right rep in real time.</span></div>
+            <p class="work-outcome">Outcome: leads now get a first response within minutes instead of hours, with zero manual checking.</p>
+          </article>
+
+          <article class="work-card" data-index="1">
+            <span class="work-tag">Pre-seed · Marketplace</span>
+            <h3>Weekly ops reporting</h3>
+            <div class="work-row"><span class="label">Problem</span><span>Founder spent a few hours every Monday pulling numbers from three tools into a deck.</span></div>
+            <div class="work-row"><span class="label">Built</span><span>A scheduled tool that pulls the same numbers automatically and drops a formatted summary into email.</span></div>
+            <p class="work-outcome">Outcome: that Monday ritual is gone — the report is just there, waiting, every week.</p>
+            <p class="work-note">Have a similar workflow? We'd be happy to talk through how it'd translate to your stack.</p>
+          </article>
+
+          <article class="work-card" data-index="2">
+            <span class="work-tag">Consulting company</span>
+            <h3>Website redesign</h3>
+            <div class="work-row"><span class="label">Problem</span><span>The existing website was outdated and wasn't effectively communicating the company's value proposition.</span></div>
+            <div class="work-row"><span class="label">Built</span><span>A modern, responsive website that better showcases the company's services and expertise.</span></div>
+            <p class="work-outcome">Outcome: increased user engagement and a more professional online presence.</p>
+          </article>
+        </div>
       </div>
-      <div class="work-card">
-        <span class="work-tag">Pre-seed · Marketplace</span>
-        <h3>Weekly ops reporting</h3>
-        <div class="work-row"><span class="label">Problem</span><span>Founder spent a few hours every Monday pulling numbers from three tools into a deck.</span></div>
-        <div class="work-row"><span class="label">Built</span><span>A scheduled tool that pulls the same numbers automatically and drops a formatted summary into email.</span></div>
-        <p class="work-outcome">Outcome: that Monday ritual is gone the report is just there, waiting, every week.</p>
-        <p class="work-note">Have a similar workflow? Happy to talk through how it'd translate to your stack.</p>
-      </div>
-       <div class="work-card">
-        <span class="work-tag">Consulting Company</span>
-        <h3>Website Redesign</h3>
-        <div class="work-row"><span class="label">Problem</span><span>The existing website was outdated and not effectively communicating the company's value proposition.</span></div>
-        <div class="work-row"><span class="label">Built</span><span>A modern, responsive website that better showcases the company's services and expertise.</span></div>
-        <p class="work-outcome">Outcome: Increased user engagement and a more professional online presence.</p>
-      </div>
+
+      <button class="work-arrow" id="work-next" type="button" aria-label="Next work">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
     </div>
+
+    <div class="work-dots" id="work-dots" role="tablist" aria-label="Select work sample"></div>
   </div>
 </section>
 
@@ -143,7 +161,7 @@
       <div class="process-step">
         <span class="num">02</span>
         <h3>Design</h3>
-        <p>I plan the automation against your real tools and edge cases before writing anything.</p>
+        <p>We plan the automation against your real tools and edge cases before writing anything.</p>
       </div>
       <div class="process-step">
         <span class="num">03</span>
@@ -153,7 +171,7 @@
       <div class="process-step">
         <span class="num">04</span>
         <h3>Support</h3>
-        <p>Once it's live, I monitor it and fix issues as your tools and processes evolve.</p>
+        <p>Once it's live, we monitor it and fix issues as your tools and processes evolve.</p>
       </div>
     </div>
   </div>
@@ -163,15 +181,15 @@
   <div class="wrap contact-wrap">
     <div class="contact-info">
       <div class="section-eyebrow">Contact</div>
-      <h2>Tell me about the task you're tired of doing by hand.</h2>
-      <p>Send a few details below, or email directly, I typically reply within a day or two with initial thoughts before any call.</p>
-      <a href="mailto:hello@looplines.co" class="contact-email">hello@looplines.co</a>
+      <h2>Tell us about the task you're tired of doing by hand.</h2>
+      <p>Send a few details below, or email us directly we typically reply within a day or two with initial thoughts before any call.</p>
+      <a href="mailto:hello@loopline.co" class="contact-email">hello@loopline.co</a>
       <div class="contact-meta">
         <span>Based remote · working with startups worldwide</span>
         <span>Typical first response: 1–2 business days</span>
       </div>
     </div>
-    
+
     <form id="contact-form"
       action="https://api.web3forms.com/submit"
       method="POST">
@@ -203,7 +221,7 @@
 
 <footer>
   <div class="wrap footer-row">
-    <span>© 2026 looplines. Automation systems for startups.</span>
+    <span>© 2026 Loopline. Automation systems for startups.</span>
     <span class="mono"></span>
   </div>
 </footer>
