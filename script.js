@@ -163,7 +163,7 @@ document.getElementById('contact-form').addEventListener('submit', function(e) {
     .then(function(res) { return res.json(); })
     .then(function(data) {
       if (data.success) {
-        status.textContent = "Thanks — we've got your message and will get back to you within 1–2 business days.";
+        status.textContent = "Thanks- we've got your message and will get back to you within 1–2 business days.";
         status.classList.add('form-status-success');
         form.reset();
       } else {
