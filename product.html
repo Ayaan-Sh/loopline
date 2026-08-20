@@ -267,6 +267,7 @@
 <div class="app-shell">
   <div class="side-nav">
     <div class="side-item active" data-view="dashboard"><svg class="side-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="side-item" data-view="livedemo"><svg class="side-icon" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/><circle cx="9" cy="10" r="1"/><circle cx="12" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>Live demo</div>
     <div class="side-item" data-view="adplanner"><svg class="side-icon" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Ad planner</div>
     <div class="side-item" data-view="audiences"><svg class="side-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M4 20c0-4 3.5-6.5 8-6.5s8 2.5 8 6.5"/></svg>Audiences</div>
     <div class="side-item" data-view="leads"><svg class="side-icon" viewBox="0 0 24 24"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5"/></svg>Leads</div>
@@ -316,6 +317,31 @@
         <div class="view-eyebrow" style="margin-bottom:14px;">Recent activity</div>
         <ul class="activity-list" id="activityList"><li><span>No calls yet this session</span><span>—</span></li></ul>
       </div>
+    </div>
+
+    <!-- LIVE DEMO -->
+    <div class="view" id="view-livedemo">
+      <div class="view-eyebrow">Try it yourself</div>
+      <h2>Live demo</h2>
+      <div class="view-sub">This talks directly to the same qualification logic that runs behind WhatsApp, SMS and voice — no phone required. Type a message below.</div>
+
+      <div id="demoConnStatus" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+        <span id="demoConnDot" style="width:7px;height:7px;border-radius:50%;background:var(--line);display:inline-block;"></span>
+        <span id="demoConnText">Connecting…</span>
+      </div>
+
+      <div style="border:1px solid var(--line);background:#fff;display:flex;flex-direction:column;height:460px;max-width:640px;">
+        <div class="chat-transcript" id="demoTranscript" style="flex:1;">
+          <div style="margin:auto;text-align:center;color:var(--ink-soft);font-size:12px;">Say hello to get started.</div>
+        </div>
+        <div class="chat-compose">
+          <input id="demoInput" placeholder="e.g. Looking for a 2 bedroom apartment in Dubai Marina" onkeydown="if(event.key==='Enter')sendDemoMessage()" disabled>
+          <button id="demoSend" onclick="sendDemoMessage()" disabled>Send</button>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;max-width:640px;" id="demoFieldsStrip"></div>
+      <button onclick="restartDemo()" style="margin-top:14px;background:none;border:none;padding:0;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);text-decoration:underline;cursor:pointer;">Start a new conversation</button>
     </div>
 
     <!-- AD PLANNER -->
@@ -587,6 +613,7 @@ function switchView(name){
   if(name === 'conversations') renderConversations();
   if(name === 'playbook') renderComplianceBadge();
   if(name === 'adplanner') updateAdPlannerMode();
+  if(name === 'livedemo' && !demoConnected) initDemoConnection();
 }
 document.querySelectorAll('.side-item').forEach(item=>{
   item.addEventListener('click', ()=>{
@@ -679,6 +706,111 @@ let conversations = [
     {from:'ai', text:'Hi Sara, this is Loopline. Are you still interested in Marina Vista Residences? Reply YES and we can continue.'}
   ]}
 ];
+
+/* ---------- Live demo chat (talks directly to /web-chat, no Twilio) ----------
+   Hardcoded so the demo tab connects automatically with no setup step in front
+   of an audience. Update DEMO_API_BASE to your current ngrok URL before each
+   presentation — or better, use a free ngrok static domain so this never
+   needs to change: ngrok http --domain=your-name.ngrok-free.app 5000 */
+const DEMO_API_BASE = 'https://barbed-headfirst-portion.ngrok-free.dev';
+const DEMO_FIELDS = [
+  {key:'property_type', label:'Property type'},
+  {key:'location', label:'Location'},
+  {key:'bedrooms', label:'Bedrooms'},
+  {key:'budget', label:'Budget'},
+  {key:'timeline', label:'Timeline'}
+];
+let demoConnected = false;
+let demoSessionId = localStorage.getItem('loopline_demo_session') || '';
+if(!demoSessionId){
+  demoSessionId = 'demo-' + Date.now() + '-' + Math.random().toString(16).slice(2,8);
+  localStorage.setItem('loopline_demo_session', demoSessionId);
+}
+
+function setDemoStatus(state, text){
+  const dot = document.getElementById('demoConnDot');
+  const txt = document.getElementById('demoConnText');
+  dot.style.background = state === 'ok' ? 'var(--teal)' : (state === 'err' ? '#C0392B' : 'var(--line)');
+  txt.textContent = text;
+}
+
+function renderDemoFields(state){
+  const strip = document.getElementById('demoFieldsStrip');
+  strip.innerHTML = '';
+  DEMO_FIELDS.forEach(f=>{
+    const val = state && state[f.key];
+    const chip = document.createElement('span');
+    chip.style.cssText = 'font-family:\'IBM Plex Mono\',monospace;font-size:11px;padding:5px 10px;border-radius:999px;border:1px solid '+(val?'var(--teal)':'var(--line)')+';color:'+(val?'var(--teal)':'var(--ink-soft)')+';background:'+(val?'var(--teal-tint)':'#fff')+';';
+    chip.textContent = val ? (f.label + ': ' + val) : f.label;
+    strip.appendChild(chip);
+  });
+}
+
+function addDemoBubble(role, text){
+  const t = document.getElementById('demoTranscript');
+  if(t.children.length === 1 && t.children[0].tagName === 'DIV' && t.children[0].style.margin === 'auto') t.innerHTML = '';
+  const b = document.createElement('div');
+  b.className = 'chat-bubble ' + (role === 'user' ? 'lead' : 'ai');
+  b.textContent = text;
+  t.appendChild(b);
+  t.scrollTop = t.scrollHeight;
+  return b;
+}
+
+async function initDemoConnection(){
+  setDemoStatus('', 'Connecting…');
+  try{
+    const res = await fetch(DEMO_API_BASE + '/web-chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},
+      body: JSON.stringify({session_id: demoSessionId, message: '__ping__'})
+    });
+    if(!res.ok) throw new Error('status ' + res.status);
+    const data = await res.json();
+    demoConnected = true;
+    setDemoStatus('ok', 'Connected');
+    document.getElementById('demoInput').disabled = false;
+    document.getElementById('demoSend').disabled = false;
+    if(data.reply){ addDemoBubble('ai', data.reply); renderDemoFields(data.state || {}); }
+  }catch(e){
+    demoConnected = false;
+    setDemoStatus('err', "Couldn't reach the backend — check the tunnel is running");
+  }
+}
+
+async function sendDemoMessage(){
+  const input = document.getElementById('demoInput');
+  const text = input.value.trim();
+  if(!text || !demoConnected) return;
+  addDemoBubble('user', text);
+  input.value = '';
+  input.disabled = true;
+  document.getElementById('demoSend').disabled = true;
+  try{
+    const res = await fetch(DEMO_API_BASE + '/web-chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},
+      body: JSON.stringify({session_id: demoSessionId, message: text})
+    });
+    const data = await res.json();
+    if(data.error) addDemoBubble('ai', 'Error: ' + data.error);
+    else { addDemoBubble('ai', data.reply); renderDemoFields(data.state || {}); }
+  }catch(e){
+    addDemoBubble('ai', "Couldn't reach the backend — check the tunnel is still running.");
+  }finally{
+    input.disabled = false;
+    document.getElementById('demoSend').disabled = false;
+    input.focus();
+  }
+}
+
+function restartDemo(){
+  demoSessionId = 'demo-' + Date.now() + '-' + Math.random().toString(16).slice(2,8);
+  localStorage.setItem('loopline_demo_session', demoSessionId);
+  document.getElementById('demoTranscript').innerHTML = '<div style="margin:auto;text-align:center;color:var(--ink-soft);font-size:12px;">Say hello to get started.</div>';
+  renderDemoFields({});
+  if(demoConnected) initDemoConnection();
+}
 
 /* ---------- Live backend connection (real Twilio/email outreach) ---------- */
 let LIVE = { apiBase: localStorage.getItem('loopline_api_base') || '', adminKey: localStorage.getItem('loopline_admin_key') || '', connected: false };
