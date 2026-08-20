@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loopline — Product</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{overflow-x:hidden;}
+  .app-header .nav{height:64px;}
+  .app-header{position:sticky;top:0;z-index:60;}
+
+  .app-shell{display:flex;min-height:calc(100vh - 64px);position:relative;}
+
+  .side-nav{width:216px;flex-shrink:0;background:var(--paper-dim);border-right:1px solid var(--line);padding:20px 12px;}
+  .side-item{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:14px;color:var(--ink-soft);
+    cursor:pointer;margin-bottom:2px;border-left:2px solid transparent;transition:background .15s ease,color .15s ease;
+  }
+  .side-item:hover{background:#fff;color:var(--ink);}
+  .side-item.active{background:#fff;color:var(--ink);font-weight:500;border-left-color:var(--amber-deep);}
+  .side-icon{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.85;}
+
+  .main{flex:1;min-width:0;padding:36px 40px;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .view-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber-deep);margin-bottom:6px;}
+  .view h2{font-size:24px;font-weight:600;margin-bottom:4px;}
+  .view-sub{color:var(--ink-soft);font-size:14px;margin-bottom:28px;}
+
+  .card-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px;}
+  .stat-card{background:#fff;border:1px solid var(--line);padding:18px 22px;min-width:170px;transition:transform .25s ease,box-shadow .25s ease;}
+  .stat-card:hover{transform:translateY(-3px);box-shadow:0 16px 30px -18px rgba(25,29,36,.25);}
+  .stat-label{font-size:12px;color:var(--ink-soft);}
+  .stat-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:600;margin:4px 0 2px;}
+  .stat-note{font-size:11.5px;color:var(--teal);}
+
+  .panel{background:#fff;border:1px solid var(--line);}
+  .t-head{display:grid;grid-template-columns:1.3fr 1fr 0.9fr 0.8fr 60px;padding:12px 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--line);}
+  .row{display:grid;grid-template-columns:1.3fr 1fr 0.9fr 0.8fr 60px;align-items:center;padding:13px 20px;border-bottom:1px solid var(--line);position:relative;}
+  .row:last-child{border-bottom:none;}
+  .row:hover{background:var(--paper-dim);}
+  .who{display:flex;align-items:center;gap:11px;}
+  .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;color:#fff;flex-shrink:0;}
+  .name{font-size:13.5px;font-weight:500;}
+  .name.masked{font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);font-weight:400;}
+  .phone{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);margin-top:1px;}
+  .project{font-size:13px;color:var(--ink-soft);}
+  .verified-pill{font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:var(--teal-tint);color:var(--teal);padding:2px 8px;border-radius:999px;}
+  .unverified-pill{font-size:12px;color:var(--ink-soft);}
+
+  /* ---------- Status + temperature classification ---------- */
+  .status-pill{font-size:11.5px;font-weight:500;padding:4px 11px;border-radius:999px;display:inline-block;border:1px solid transparent;}
+  .status-pill.st-qualified{background:var(--teal-tint);color:var(--teal);border-color:rgba(14,140,134,.25);}
+  .status-pill.st-followup{background:var(--amber-tint);color:var(--amber-deep);border-color:rgba(201,124,29,.25);}
+  .status-pill.st-rnr{background:#F7E6E1;color:#B3432B;border-color:rgba(179,67,43,.25);}
+  .status-pill.st-new{background:var(--paper-dim);color:var(--ink-soft);border-color:var(--line);}
+  .status-pill.st-engaged{background:#EAE7F5;color:#5B4B9C;border-color:rgba(91,75,156,.25);}
+  .status-pill.st-svsoft{background:var(--amber-tint);color:var(--amber-deep);border-color:rgba(201,124,29,.25);}
+  .status-pill.st-svhard{background:#E1F0E6;color:#227A45;border-color:rgba(34,122,69,.3);}
+
+  /* ---------- Project NOBODY: booking gate + ladder mini-widgets ---------- */
+  .gate-row{display:flex;gap:6px;margin:2px 0 4px;}
+  .gate-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;border-radius:999px;border:1px solid var(--line);color:var(--ink-soft);}
+  .gate-chip.pass{background:#E1F0E6;color:#227A45;border-color:rgba(34,122,69,.3);}
+  .ladder-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);}
+  .disposition-tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);}
+  .compliance-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 9px;border-radius:999px;display:inline-block;}
+  .compliance-badge.ok{background:#E1F0E6;color:#227A45;}
+  .compliance-badge.blocked{background:#F7E6E1;color:#B3432B;}
+  .invariant-list{list-style:none;padding:0;margin:0;}
+  .invariant-list li{padding:14px 0;border-bottom:1px solid var(--line);display:flex;gap:14px;}
+  .invariant-list li:last-child{border-bottom:none;}
+  .invariant-num{font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--amber-deep);flex-shrink:0;}
+  .route-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+  .route-card{background:#fff;border:1px solid var(--line);padding:16px 18px;}
+  .route-card h4{font-size:13.5px;margin:0 0 6px;}
+  .route-card p{font-size:12.5px;color:var(--ink-soft);margin:0 0 8px;}
+  .route-card code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--paper-dim);padding:1px 5px;border-radius:4px;}
+
+  .temp{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);}
+  .temp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .temp-dot.hot{background:#B3432B;box-shadow:0 0 0 3px rgba(179,67,43,.15);}
+  .temp-dot.warm{background:var(--amber-deep);box-shadow:0 0 0 3px rgba(201,124,29,.15);}
+  .temp-dot.cold{background:#3E6FA6;box-shadow:0 0 0 3px rgba(62,111,166,.15);}
+  .temp-dot.none{background:var(--line);}
+  .temp.none{color:var(--ink-soft);}
+
+  /* ---------- Row hover preview: next-action card ---------- */
+  .lead-preview{position:absolute;z-index:65;width:300px;background:#fff;border:1px solid var(--ink);box-shadow:0 24px 48px -18px rgba(25,29,36,.35);padding:16px;opacity:0;transform:translateY(4px);pointer-events:none;transition:opacity .15s ease,transform .15s ease;}
+  .lead-preview.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .lp-head{display:flex;align-items:center;gap:11px;margin-bottom:14px;}
+  .lp-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;color:#fff;flex-shrink:0;}
+  .lp-name{font-size:13.5px;font-weight:500;}
+  .lp-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:1px;}
+  .lp-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:6px;}
+  .lp-label:not(:first-of-type){margin-top:14px;}
+  .lp-looking-for{font-size:12.5px;line-height:1.5;color:var(--ink);margin:0 0 2px;}
+  .lp-action-btn{width:100%;background:var(--ink);color:var(--paper);border:none;padding:10px 12px;font-size:12.5px;font-weight:500;cursor:pointer;text-align:left;}
+  .lp-action-btn:hover{background:var(--amber-deep);}
+  .lp-ai-tag{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--amber-deep);background:var(--amber-tint);padding:3px 7px;border-radius:999px;}
+
+  .call-btn{height:30px;padding:0 12px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);margin-left:auto;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:500;white-space:nowrap;}
+  .call-btn:hover{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+
+  /* ---------- CALL POPUP ---------- */
+  .popup{position:absolute;z-index:70;width:340px;background:#fff;border:1px solid var(--ink);box-shadow:0 20px 44px -16px rgba(25,29,36,.35);padding:16px;display:none;}
+  .popup.show{display:block;}
+  .popup-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .popup-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;}
+  .wave{display:flex;align-items:center;gap:2px;height:16px;}
+  .wave span{width:2.5px;background:var(--amber-deep);border-radius:2px;animation:wv .9s ease-in-out infinite;}
+  .wave span:nth-child(1){height:6px;}
+  .wave span:nth-child(2){height:14px;animation-delay:.15s;}
+  .wave span:nth-child(3){height:9px;animation-delay:.3s;}
+  .wave span:nth-child(4){height:14px;animation-delay:.1s;}
+  @keyframes wv{0%,100%{transform:scaleY(.4);}50%{transform:scaleY(1);}}
+  .popup-close{cursor:pointer;color:var(--ink-soft);font-size:17px;line-height:1;background:none;border:none;}
+  .popup-status{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);margin-bottom:10px;}
+  .popup-transcript{max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;margin-bottom:10px;}
+  .pbubble{font-size:12.5px;line-height:1.45;padding:7px 10px;max-width:88%;}
+  .pbubble.agent{background:var(--amber-tint);align-self:flex-start;}
+  .pbubble.user{background:var(--paper-dim);align-self:flex-end;}
+  .popup-controls{display:flex;gap:8px;}
+  .p-mic{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .p-mic.live{background:var(--teal);border-color:var(--teal);}
+  .p-mic svg{width:15px;height:15px;stroke:var(--ink-soft);fill:none;stroke-width:1.8;}
+  .p-mic.live svg{stroke:#fff;}
+  .p-input{flex:1;border:1px solid var(--line);padding:0 10px;font-size:12.5px;font-family:'Inter',sans-serif;}
+  .p-end{border:none;background:#B3432B;color:#fff;padding:0 12px;font-size:12px;cursor:pointer;}
+
+  /* ---------- Qualification channel chooser ---------- */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(25,29,36,.42);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-backdrop.show{display:flex;}
+  .channel-modal{width:min(420px,100%);background:#fff;border:1px solid var(--ink);box-shadow:0 30px 80px -30px rgba(25,29,36,.45);padding:20px;}
+  .channel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:14px;}
+  .channel-head h3{font-size:17px;margin:3px 0 0;}
+  .channel-close{border:0;background:none;color:var(--ink-soft);font-size:22px;cursor:pointer;line-height:1;}
+  .channel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .channel-card{border:1px solid var(--line);background:#fff;text-align:center;padding:14px 10px;cursor:pointer;transition:.15s ease;display:flex;flex-direction:column;gap:6px;align-items:center;}
+  .channel-card:hover{border-color:var(--ink);background:var(--paper-dim);}
+  .channel-card strong{font-size:13px;font-weight:500;}
+  .channel-badge{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
+  .channel-badge.warn{color:var(--amber-deep);}
+
+  /* ---------- Conversations / admin takeover ---------- */
+  .conversation-layout{display:grid;grid-template-columns:280px minmax(0,1fr) 270px;border:1px solid var(--line);background:#fff;min-height:620px;}
+  .conversation-list{border-right:1px solid var(--line);background:var(--paper-dim);}
+  .conversation-list-head{padding:15px 16px;border-bottom:1px solid var(--line);}
+  .conversation-list-head strong{font-size:13px;display:block;margin-bottom:4px;}
+  .conversation-list-head span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-soft);}
+  .chat-item{padding:13px 15px;border-bottom:1px solid var(--line);cursor:pointer;background:transparent;}
+  .chat-item.active{background:#fff;border-left:3px solid var(--amber-deep);padding-left:12px;}
+  .chat-item:hover{background:#fff;}
+  .chat-item-top{display:flex;justify-content:space-between;gap:8px;}
+  .chat-item-name{font-size:12.5px;font-weight:600;}
+  .chat-item-time{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-soft);}
+  .chat-item-preview{font-size:11px;color:var(--ink-soft);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .chat-channel{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--amber-deep);margin-top:5px;}
+  .chat-main{display:flex;flex-direction:column;min-width:0;}
+  .chat-main-head{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .chat-main-title{font-size:14px;font-weight:600;}
+  .chat-main-meta{font-size:10.5px;color:var(--ink-soft);margin-top:3px;}
+  .chat-state{font-family:'IBM Plex Mono',monospace;font-size:9.5px;padding:4px 7px;border:1px solid var(--line);}
+  .chat-state.ai{background:#E1F0E6;color:#227A45;border-color:rgba(34,122,69,.25);}
+  .chat-state.human{background:var(--amber-tint);color:var(--amber-deep);border-color:rgba(201,124,29,.25);}
+  .chat-transcript{flex:1;padding:20px;overflow:auto;background:#fcfcfb;display:flex;flex-direction:column;gap:10px;}
+  .chat-bubble{max-width:75%;padding:9px 11px;font-size:12.5px;line-height:1.45;border:1px solid var(--line);}
+  .chat-bubble.lead{align-self:flex-start;background:#fff;}
+  .chat-bubble.ai{align-self:flex-end;background:var(--amber-tint);border-color:rgba(201,124,29,.2);}
+  .chat-bubble.admin{align-self:flex-end;background:var(--ink);color:#fff;border-color:var(--ink);}
+  .chat-bubble small{display:block;font-family:'IBM Plex Mono',monospace;font-size:8.5px;margin-top:5px;opacity:.65;text-transform:uppercase;}
+  .chat-compose{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:#fff;}
+  .chat-compose input{flex:1;border:1px solid var(--line);padding:10px 11px;font-size:12.5px;}
+  .chat-compose button{border:0;background:var(--ink);color:#fff;padding:0 13px;font-size:11.5px;cursor:pointer;}
+  .chat-compose button:disabled{opacity:.4;cursor:not-allowed;}
+  .chat-side{border-left:1px solid var(--line);padding:17px;background:#fff;}
+  .side-section{margin-bottom:22px;}
+  .side-section:last-child{margin-bottom:0;}
+  .side-label{font-family:'IBM Plex Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:9px;}
+  .result-box{border:1px solid var(--line);padding:12px;background:var(--paper-dim);}
+  .result-row{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;padding:7px 0;border-bottom:1px dashed var(--line);}
+  .result-row:last-child{border-bottom:0;}
+  .result-row span:first-child{color:var(--ink-soft);}
+  .result-action{width:100%;border:1px solid var(--ink);background:#fff;padding:10px 11px;font-size:11.5px;cursor:pointer;margin-top:9px;text-align:left;}
+  .result-action:hover{background:var(--ink);color:#fff;}
+  .takeover-btn{width:100%;border:1px solid var(--amber-deep);background:var(--amber-tint);color:var(--amber-deep);padding:10px 11px;font-size:11.5px;cursor:pointer;font-weight:500;}
+  .takeover-btn.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .channel-pill{font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--paper-dim);padding:3px 6px;color:var(--ink-soft);}
+  @media(max-width:1050px){.conversation-layout{grid-template-columns:220px minmax(0,1fr);}.chat-side{display:none;}}
+  @media(max-width:650px){.conversation-layout{grid-template-columns:1fr;}.conversation-list{display:none;}}
+
+  /* ---------- Agent config ---------- */
+  .config-form{max-width:460px;display:flex;flex-direction:column;gap:16px;}
+  .config-form label{margin-bottom:0;}
+
+  /* ---------- Audiences / Creatives ---------- */
+  .aud-table{width:100%;border-collapse:collapse;}
+  .aud-table th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);padding:12px 20px;border-bottom:1px solid var(--line);}
+  .aud-table td{padding:13px 20px;font-size:13.5px;border-bottom:1px solid var(--line);}
+  .aud-table tr:last-child td{border-bottom:none;}
+
+  .creative-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
+  .creative-card{background:#fff;border:1px solid var(--line);transition:transform .25s ease,box-shadow .25s ease;}
+  .creative-card:hover{transform:translateY(-4px);box-shadow:0 20px 36px -18px rgba(25,29,36,.25);}
+  .creative-thumb{height:120px;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:16px 16px;background-color:var(--paper-dim);}
+  .creative-body{padding:14px 16px;}
+  .creative-tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--amber-deep);text-transform:uppercase;letter-spacing:.05em;}
+  .creative-body h4{font-size:14px;font-weight:600;margin:5px 0 3px;}
+  .creative-body p{font-size:12.5px;color:var(--ink-soft);margin:0;}
+
+  .proposal-card{background:#fff;border:1px solid var(--line);padding:22px;margin-top:20px;display:none;}
+  .proposal-card.show{display:block;}
+  .proposal-row{display:flex;justify-content:space-between;font-size:13.5px;padding:8px 0;border-bottom:1px dashed var(--line);}
+  .proposal-row:last-child{border-bottom:none;}
+  .proposal-row .k{color:var(--ink-soft);}
+
+  .activity-list{list-style:none;padding:0;margin:0;}
+  .activity-list li{display:flex;justify-content:space-between;font-size:13px;padding:10px 0;border-bottom:1px solid var(--line);color:var(--ink-soft);}
+  .activity-list li:last-child{border-bottom:none;}
+  .activity-list .who{font-weight:500;color:var(--ink);}
+
+  select,input[type=date]{width:100%;background:#fff;border:1px solid var(--line);padding:12px 14px;font-family:'Inter',sans-serif;font-size:14.5px;color:var(--ink);}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wrap nav">
+    <a href="index.html" class="logo"><span class="dot"></span>Loopline</a>
+    <span class="mono" style="font-size:12.5px;color:var(--ink-bold);">Product · internal console</span>
+    <button class="btn btn-ghost btn-sm" id="liveStatusBtn" onclick="openLiveSettings()" style="margin-left:auto;margin-right:8px;">
+      <span id="liveStatusDot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c94f4f;margin-right:6px;"></span>
+      <span id="liveStatusLabel">Not connected</span>
+    </button>
+    <a href="index.html" class="btn btn-ghost btn-sm">← Back to site</a>
+  </div>
+</header>
+
+<!-- LIVE BACKEND SETTINGS -->
+<div class="modal-backdrop" id="liveSettingsModal">
+  <div class="channel-modal">
+    <div class="channel-head">
+      <div><div class="view-eyebrow">Live outreach</div><h3>Connect to your Loopline backend</h3></div>
+      <button class="channel-close" onclick="closeLiveSettings()">&times;</button>
+    </div>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 14px;">
+      Point this dashboard at your running chatbot.py server (your ngrok URL) and admin key.
+      Once connected, clicking <b>Follow up</b> on a lead sends a real WhatsApp/SMS/call/email
+      through Twilio instead of just simulating it here.
+    </p>
+    <label style="font-size:12.5px;font-weight:600;display:block;margin-bottom:4px;">Backend URL</label>
+    <input class="p-input" id="apiBaseInput" placeholder="https://your-ngrok-url.ngrok-free.dev" style="width:100%;margin-bottom:12px;box-sizing:border-box;">
+    <label style="font-size:12.5px;font-weight:600;display:block;margin-bottom:4px;">Admin key</label>
+    <input class="p-input" id="adminKeyInput" placeholder="your ADMIN_API_KEY" style="width:100%;margin-bottom:14px;box-sizing:border-box;">
+    <div id="liveSettingsStatus" style="font-size:12.5px;margin-bottom:12px;color:var(--ink-soft);"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-sm" onclick="testAndSaveLiveSettings()">Save &amp; test connection</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeLiveSettings()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+  <div class="side-nav">
+    <div class="side-item active" data-view="dashboard"><svg class="side-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="side-item" data-view="adplanner"><svg class="side-icon" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Ad planner</div>
+    <div class="side-item" data-view="audiences"><svg class="side-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M4 20c0-4 3.5-6.5 8-6.5s8 2.5 8 6.5"/></svg>Audiences</div>
+    <div class="side-item" data-view="leads"><svg class="side-icon" viewBox="0 0 24 24"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5"/></svg>Leads</div>
+    <div class="side-item" data-view="conversations"><svg class="side-icon" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/><path d="M8 9h8M8 12h5"/></svg>Conversations <span id="chatUnread" style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--amber-tint);color:var(--amber-deep);padding:2px 5px;">3</span></div>
+    <div class="side-item" data-view="pipeline"><svg class="side-icon" viewBox="0 0 24 24"><path d="M3 4h18l-7 9v6l-4 2v-8L3 4Z"/></svg>Pipeline</div>
+    <div class="side-item" data-view="creatives"><svg class="side-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>Creatives</div>
+    <div class="side-item" data-view="agents"><svg class="side-icon" viewBox="0 0 24 24"><path d="M15 8a3 3 0 0 0-6 0v3l-2 4h10l-2-4V8Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg>AI calling agents</div>
+    <div class="side-item" data-view="playbook"><svg class="side-icon" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-3-6 3V3Z"/></svg>Playbook</div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="view-eyebrow">Overview</div>
+      <h2>This month, at a glance</h2>
+      <div class="view-sub">Everything below reflects the same lead data and call log as the Leads and AI calling agents views.</div>
+      <div class="card-row">
+        <div class="stat-card"><div class="stat-label">Total leads</div><div class="stat-value" id="dbTotal">8</div><div class="stat-note" style="color:var(--ink-soft)">last 30 days</div></div>
+        <div class="stat-card"><div class="stat-label">Calls made</div><div class="stat-value" id="dbCalls">0</div><div class="stat-note" style="color:var(--ink-soft)">this session</div></div>
+        <div class="stat-card"><div class="stat-label">Verified</div><div class="stat-value" id="dbVerified">1</div><div class="stat-note" id="dbRate">13% verification rate</div></div>
+      </div>
+
+      <div class="view-eyebrow" style="margin:26px 0 10px;">Ad performance <span id="adsModeTag" style="font-weight:400;color:var(--ink-soft);font-size:11px;">(mock data — connect a backend for live numbers)</span></div>
+      <div class="card-row">
+        <div class="stat-card"><div class="stat-label">Ad spend</div><div class="stat-value" id="adSpend">—</div><div class="stat-note" style="color:var(--ink-soft)">Meta + Google, last 30 days</div></div>
+        <div class="stat-card"><div class="stat-label">Leads from ads</div><div class="stat-value" id="adLeads">—</div><div class="stat-note" id="adCPL" style="color:var(--ink-soft)">— cost per lead</div></div>
+        <div class="stat-card"><div class="stat-label">Qualification rate</div><div class="stat-value" id="adQualRate">—</div><div class="stat-note" style="color:var(--ink-soft)">of real leads that passed AI qualification</div></div>
+        <div class="stat-card"><div class="stat-label">Est. cost / qualified lead</div><div class="stat-value" id="adCPQL">—</div><div class="stat-note" style="color:var(--teal)">the number that actually matters</div></div>
+      </div>
+
+      <div class="panel" style="padding:20px 22px;margin-top:16px;">
+        <div class="view-eyebrow" style="margin-bottom:14px;">Campaign performance</div>
+        <table class="aud-table" id="campaignTable">
+          <tr><th>Campaign</th><th>Platform</th><th>Spend</th><th>Leads</th><th>CTR</th><th>CPC</th><th>CPL</th><th>Est. qualified</th><th>Est. CPQL</th></tr>
+          <tr><td colspan="9" style="color:var(--ink-soft);">Loading…</td></tr>
+        </table>
+      </div>
+
+      <div class="panel" style="padding:20px 22px;margin-top:16px;">
+        <div class="view-eyebrow" style="margin-bottom:14px;">How leads are actually coming in</div>
+        <div class="view-sub" style="margin-top:-6px;margin-bottom:14px;">Real channel breakdown from Loopline's own lead data — not from the ad platforms.</div>
+        <div id="leadSourceBreakdown" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <div class="panel" style="padding:20px 22px;margin-top:16px;">
+        <div class="view-eyebrow" style="margin-bottom:14px;">Recent activity</div>
+        <ul class="activity-list" id="activityList"><li><span>No calls yet this session</span><span>—</span></li></ul>
+      </div>
+    </div>
+
+    <!-- AD PLANNER -->
+    <div class="view" id="view-adplanner">
+      <div class="view-eyebrow">Ad planner</div>
+      <h2 id="apHeading">Propose a campaign before it spends a rupee</h2>
+      <div class="view-sub" id="apSub">Set a goal, budget and deadline — the planner drafts a proposal for you to approve.</div>
+      <div class="panel" style="padding:24px;max-width:520px;">
+        <label>Goal</label>
+        <select id="apGoal" style="margin-bottom:16px;">
+          <option>Site visits</option>
+          <option>Qualified lead volume</option>
+          <option>Brochure downloads</option>
+        </select>
+        <label>Budget (AED, total for the window below)</label>
+        <input id="apBudget" value="55000" style="margin-bottom:16px;">
+        <label>Deadline</label>
+        <input id="apDeadline" type="date" style="margin-bottom:16px;">
+
+        <!-- Only needed once a live backend is connected — creates a REAL paused campaign -->
+        <div id="apLiveFields" style="display:none;">
+          <label>Headline</label>
+          <input id="apHeadline" placeholder="Dubai Marina, ready to move in." style="margin-bottom:16px;">
+          <label>Body text</label>
+          <input id="apBody" placeholder="2BR at AED 2.1M. Site visits this weekend." style="margin-bottom:16px;">
+          <label>Image URL <span style="color:var(--ink-soft);font-weight:400;">(Meta only)</span></label>
+          <input id="apImageUrl" placeholder="https://..." style="margin-bottom:16px;">
+          <label>Target countries <span style="color:var(--ink-soft);font-weight:400;">(comma-separated ISO codes, e.g. AE,SA)</span></label>
+          <input id="apCountries" value="AE" style="margin-bottom:16px;">
+          <div class="form-row" style="margin-bottom:20px;">
+            <div><label>Min age <span style="color:var(--ink-soft);font-weight:400;">(Meta)</span></label><input id="apAgeMin" value="25"></div>
+            <div><label>Max age <span style="color:var(--ink-soft);font-weight:400;">(Meta)</span></label><input id="apAgeMax" value="55"></div>
+          </div>
+        </div>
+
+        <button class="btn" style="align-self:flex-start;" id="apSubmitBtn" onclick="generateProposal()">Generate proposal</button>
+        <p class="form-status" id="apStatus"></p>
+      </div>
+      <div class="proposal-card" id="proposalCard"></div>
+    </div>
+
+    <!-- AUDIENCES -->
+    <div class="view" id="view-audiences">
+      <div class="view-eyebrow">Audiences</div>
+      <h2>Who's reachable, at what price</h2>
+      <div class="view-sub">Sample market data for illustration — the live version pulls this from the Meta and Google Ads APIs per client.</div>
+      <div class="panel">
+        <table class="aud-table">
+          <tr><th>Platform</th><th>Estimated reach</th><th>Avg. price</th><th>Best for</th></tr>
+          <tr><td>Meta (Instagram + Facebook)</td><td>3.1M · Dubai, 25–50</td><td>AED 42 CPM</td><td>Brochure downloads, retargeting</td></tr>
+          <tr><td>Google Search</td><td>28K searches/mo · "2BR Dubai Marina"</td><td>AED 14 CPC</td><td>High-intent site-visit leads</td></tr>
+          <tr><td>Google Display</td><td>1.6M · property intenders (UAE)</td><td>AED 18 CPM</td><td>Awareness, top-of-funnel</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="view" id="view-leads">
+      <div class="view-eyebrow">Leads</div>
+      <h2>Leads</h2>
+      <div class="view-sub">Every unverified lead stays masked until the AI agent confirms genuine interest.</div>
+      <div class="card-row">
+        <div class="stat-card"><div class="stat-label">Total leads</div><div class="stat-value" id="statTotal">8</div><div class="stat-note" style="color:var(--ink-soft)">last 30 days</div></div>
+        <div class="stat-card"><div class="stat-label">Verified</div><div class="stat-value" id="statVerified">1</div><div class="stat-note" id="statRate">13% verification rate</div></div>
+        <div class="stat-card"><div class="stat-label">Qualified</div><div class="stat-value" id="statQualified">0</div><div class="stat-note" style="color:var(--teal)">ready for a counsellor</div></div>
+        <div class="stat-card"><div class="stat-label">Hot</div><div class="stat-value" id="statHot">0</div><div class="stat-note" style="color:#B3432B">act on these first</div></div>
+      </div>
+      <div class="panel">
+        <div class="t-head"><div>Name</div><div>Project</div><div>Status</div><div>Temperature</div><div></div></div>
+        <div id="rows"></div>
+      </div>
+    </div>
+
+    <!-- CONVERSATIONS -->
+    <div class="view" id="view-conversations">
+      <div class="view-eyebrow">Inbox</div>
+      <h2>Conversations</h2>
+      <div class="view-sub">One place for AI-led conversations across phone, WhatsApp, email and SMS. Admins can take over at any time.</div>
+      <div class="conversation-layout">
+        <div class="conversation-list">
+          <div class="conversation-list-head"><strong>All conversations</strong><span id="conversationCount">3 active · 1 needs attention</span></div>
+          <div id="chatList"></div>
+        </div>
+        <div class="chat-main">
+          <div class="chat-main-head">
+            <div>
+              <div class="chat-main-title" id="chatTitle">Select a conversation</div>
+              <div class="chat-main-meta" id="chatMeta">Choose a lead from the inbox.</div>
+            </div>
+            <div class="chat-state ai" id="chatState">AI ACTIVE</div>
+          </div>
+          <div class="chat-transcript" id="chatTranscript">
+            <div style="margin:auto;text-align:center;color:var(--ink-soft);font-size:12px;">Select a conversation to inspect the full transcript.</div>
+          </div>
+          <div class="chat-compose">
+            <input id="adminMessage" placeholder="Intervene as admin…" onkeydown="if(event.key==='Enter')sendAdminMessage()">
+            <button id="adminSend" onclick="sendAdminMessage()" disabled>Send</button>
+          </div>
+        </div>
+        <aside class="chat-side">
+          <div class="side-section">
+            <div class="side-label">Control</div>
+            <button class="takeover-btn" id="takeoverBtn" onclick="toggleTakeover()" disabled>Take over conversation</button>
+            <div style="font-size:10.5px;color:var(--ink-soft);line-height:1.45;margin-top:8px;">When enabled, AI pauses and outgoing replies are marked as human/admin.</div>
+          </div>
+          <div class="side-section">
+            <div class="side-label">Lead</div>
+            <div class="result-box">
+              <div class="result-row"><span>Lead</span><span id="resultLead">—</span></div>
+              <div class="result-row"><span>Channel</span><span id="resultChannel">—</span></div>
+              <div class="result-row"><span>Status</span><span id="resultStatus">In progress</span></div>
+              <div class="result-row"><span>Temperature</span><span id="resultTemp">—</span></div>
+            </div>
+          </div>
+          <div class="side-section">
+            <div class="side-label">Result handling</div>
+            <div class="result-box">
+              <div class="result-row"><span>Disposition</span><span id="resultDisposition">—</span></div>
+              <div class="result-row"><span>Qualification score</span><span id="resultScore">—</span></div>
+              <div class="result-row"><span>Next action</span><span id="resultNext">—</span></div>
+              <div class="result-row"><span>Follow-up</span><span id="resultFollowup">—</span></div>
+            </div>
+            <div style="font-size:10.5px;color:var(--ink-soft);line-height:1.5;margin-top:9px;" id="resultSummary"></div>
+            <button class="result-action" onclick="markConversationComplete()">Mark complete &amp; update lead</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- CREATIVES -->
+    <div class="view" id="view-creatives">
+      <div class="view-eyebrow">Creatives</div>
+      <h2>Ad creative library</h2>
+      <div class="view-sub">Sample creative set — generated per client from the brand &amp; offer context.</div>
+      <div class="creative-grid">
+        <div class="creative-card"><div class="creative-thumb"></div><div class="creative-body"><div class="creative-tag">Meta feed</div><h4>"Dubai Marina, ready to move in."</h4><p>2BR at AED 2.1M. Site visits this weekend.</p></div></div>
+        <div class="creative-card"><div class="creative-thumb"></div><div class="creative-body"><div class="creative-tag">Google search</div><h4>2BR in Dubai Marina — DLD verified</h4><p>Ready possession, marina view, 2 parking.</p></div></div>
+        <div class="creative-card"><div class="creative-thumb"></div><div class="creative-body"><div class="creative-tag">Instagram story</div><h4>"Your next address."</h4><p>Swipe up to book a site visit.</p></div></div>
+      </div>
+    </div>
+
+    <!-- AI CALLING AGENTS -->
+    <div class="view" id="view-agents">
+      <div class="view-eyebrow">AI calling agents</div>
+      <h2>Agent configuration</h2>
+      <div class="view-sub">This persona is what actually calls leads from the Leads view — edit it and the next call uses your changes.</div>
+      <div class="panel" style="padding:24px;">
+        <div class="config-form">
+          <div><label>Agent name</label><input id="cfgName" value="Layla"></div>
+          <div><label>Company / brokerage</label><input id="cfgCompany" value="Loopline Realty Dubai"></div>
+          <div>
+            <label>Tone</label>
+            <select id="cfgTone">
+              <option value="warm and direct">Warm and direct</option>
+              <option value="brisk and efficient">Brisk and efficient</option>
+              <option value="consultative and unhurried">Consultative and unhurried</option>
+            </select>
+          </div>
+          <button class="btn btn-sm" style="align-self:flex-start;" onclick="saveAgentConfig()">Save configuration</button>
+          <p class="form-status" id="cfgStatus"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYBOOK (Project NOBODY) -->
+    <div class="view" id="view-playbook">
+      <div class="view-eyebrow">Playbook</div>
+      <h2>The system behind every call</h2>
+      <div class="view-sub">This is the ruleset the AI agent actually runs on — not a script, a state machine. Every lead sits in exactly one lifecycle stage, every call outcome resolves to exactly one disposition, and a site visit only gets a hard confirm if it earns one.</div>
+
+      <div class="panel" style="padding:20px 22px;margin-bottom:24px;">
+        <div class="view-eyebrow" style="margin-bottom:10px;">Lead lifecycle</div>
+        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px;">Tracked in a single memory log shared across voice, WhatsApp, email and RCS — so the agent never asks a lead something it already knows.</p>
+        <div class="mono" style="font-size:12.5px;line-height:2;color:var(--ink);">
+          NEW → WORKING → ENGAGED → QUALIFIED → <b>SV · Soft hold</b> → <b>SV · Confirmed</b> → SV · Done
+        </div>
+        <div class="mono" style="font-size:12px;color:var(--ink-soft);margin-top:4px;">off-ramps at any point: Parked · DNC · Disqualified · Exhausted</div>
+      </div>
+
+      <div class="view-eyebrow" style="margin-bottom:10px;">Disposition engine</div>
+      <p style="font-size:13px;color:var(--ink-soft);margin:0 0 14px;max-width:640px;">Every call or message outcome (V-RNR, V-BOOKED, V-NP-R, W-T-Q…) routes to exactly one of four paths. No outcome is ever left unclassified.</p>
+      <div class="route-grid" style="margin-bottom:24px;">
+        <div class="route-card"><h4>No connect</h4><p>Rang out, unreachable, or never opened the message.</p><code>V-RNR</code> <code>V-NP-R</code></div>
+        <div class="route-card"><h4>Positive</h4><p>Engaged, qualifying, or ready to book a visit.</p><code>V-BOOKED</code> <code>W-T-Q</code></div>
+        <div class="route-card"><h4>Not ready</h4><p>Interested, but timing or info isn't there yet.</p><code>V-FOLLOWUP</code> <code>W-T-FU</code></div>
+        <div class="route-card"><h4>Hostile / stop</h4><p>Asked to stop — opt-out is instant and permanent.</p><code>V-DNC</code></div>
+      </div>
+
+      <div class="panel" style="padding:20px 22px;margin-bottom:24px;">
+        <div class="view-eyebrow" style="margin-bottom:10px;">The Booking Gate</div>
+        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 12px;max-width:640px;">The old process had a 66% no-show rate on site visits. A visit only gets a <b>hard confirm</b> — the full T-24h / T-3h / T-90m reminder sequence, plus cab dispatch — if it clears all four checks below. Anything less is a soft hold: on the calendar, not yet promised a cab.</p>
+        <div class="gate-row">
+          <span class="gate-chip pass">Chosen a project</span>
+          <span class="gate-chip pass">Budget match</span>
+          <span class="gate-chip pass">Family on board</span>
+          <span class="gate-chip pass">Travel plan</span>
+        </div>
+      </div>
+
+      <div class="panel" style="padding:20px 22px;margin-bottom:24px;">
+        <div class="view-eyebrow" style="margin-bottom:10px;">The Ladder</div>
+        <p style="font-size:13px;color:var(--ink-soft);margin:0;max-width:640px;">A strict 15-day cadence for leads who go quiet — up to 6 calls and 3 WhatsApp messages, never more. Rings are capped at 25–30 seconds so a lead isn't left listening to dead air, and any stated preference (call later, WhatsApp only, stop) is honored immediately, not on the next cycle. After day 15, a lead is marked <b>Exhausted</b> and handed to a human, never chased indefinitely.</p>
+      </div>
+
+      <div class="panel" style="padding:20px 22px;margin-bottom:24px;">
+        <div class="view-eyebrow" style="margin-bottom:10px;">Compliance rails</div>
+        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px;max-width:640px;">Every outbound attempt checks India's DND/TRAI rules, calls only from registered 140-series numbers, stays inside the 10:00–21:00 IST legal window, and honors an opt-out the instant it's requested.</p>
+        <span class="compliance-badge" id="pbComplianceBadge">checking window…</span>
+      </div>
+
+      <div class="panel" style="padding:20px 22px;">
+        <div class="view-eyebrow" style="margin-bottom:14px;">Five invariants</div>
+        <ul class="invariant-list">
+          <li><span class="invariant-num">01</span><div><b>No unknowns.</b> The agent never guesses at a fact it wasn't given — it asks, or it says it doesn't know.</div></li>
+          <li><span class="invariant-num">02</span><div><b>Every outcome ends in a clear disposition.</b> No call or message is ever left unclassified.</div></li>
+          <li><span class="invariant-num">03</span><div><b>There's always a next step scheduled.</b> A lead is never simply "left" — something is always queued.</div></li>
+          <li><span class="invariant-num">04</span><div><b>Buyer is boss.</b> The agent qualifies and informs — it never oversells or pressures.</div></li>
+          <li><span class="invariant-num">05</span><div><b>Rules of the door.</b> The compliance gate cannot be bypassed, no matter how promising the lead looks.</div></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- QUALIFICATION CHANNEL CHOOSER -->
+<div class="modal-backdrop" id="channelChooser">
+  <div class="channel-modal">
+    <div class="channel-head">
+      <div><div class="view-eyebrow">Start qualifying</div><h3 id="channelLeadName">Choose a channel</h3></div>
+      <button class="channel-close" onclick="closeChannelChooser()">&times;</button>
+    </div>
+    <div class="channel-grid">
+      <button class="channel-card" onclick="startQualification('email')"><strong>Email</strong><span class="channel-badge">Free · recommended</span></button>
+      <button class="channel-card" onclick="startQualification('phone')"><strong>Phone call</strong><span class="channel-badge">Twilio · per-minute</span></button>
+      <button class="channel-card" onclick="startQualification('whatsapp')"><strong>WhatsApp</strong><span class="channel-badge warn">Sandbox · limited</span></button>
+      <button class="channel-card" onclick="startQualification('sms')"><strong>SMS</strong><span class="channel-badge">Twilio · per-message</span></button>
+    </div>
+  </div>
+</div>
+
+
+<div class="popup" id="popup">
+  <div class="popup-head">
+    <div class="popup-title"><span class="wave"><span></span><span></span><span></span><span></span></span> Voice AI · qualifying call</div>
+    <button class="popup-close" onclick="closePopup()">&times;</button>
+  </div>
+  <div class="popup-status" id="pStatus">connecting…</div>
+  <div class="popup-transcript" id="pTranscript"></div>
+  <div class="popup-controls">
+    <button class="p-mic" id="pMic" onclick="toggleMic()" title="Talk">
+      <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+    </button>
+    <input class="p-input" id="pInput" placeholder="…or type the lead's reply" onkeydown="if(event.key==='Enter')sendTyped()">
+    <button class="p-end" onclick="endCall()">End</button>
+  </div>
+</div>
+
+<script>
+/* ---------- View switching ---------- */
+function switchView(name){
+  document.querySelectorAll('.side-item').forEach(i=>i.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const item=document.querySelector('.side-item[data-view="'+name+'"]');
+  if(item) item.classList.add('active');
+  document.getElementById('view-'+name).classList.add('active');
+  if(name === 'dashboard') renderDashboard();
+  if(name === 'conversations') renderConversations();
+  if(name === 'playbook') renderComplianceBadge();
+  if(name === 'adplanner') updateAdPlannerMode();
+}
+document.querySelectorAll('.side-item').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    switchView(item.dataset.view);
+    if(item.dataset.view === 'conversations' && !selectedConversation && conversations.length) selectConversation(conversations[0].id);
+  });
+});
+
+/* ---------- Shared state ---------- */
+const PROJECTS = {
+  'Marina Vista Residences': '2BR, 1050 sq ft, Dubai Marina, AED 2.1M, ready-possession, DLD-registered, marina-view tower.',
+  'Downtown Skyline Tower': '3BR, 1650 sq ft, Downtown Dubai, AED 4.6M, off-plan, Q1 2028 handover, Burj Khalifa view.',
+  'Palm Horizon Villas': '2BR, 1400 sq ft, Palm Jumeirah, AED 3.3M, ready-possession, private beach access.'
+};
+const COLORS = ['#EE9E3A','#0E8C86','#C97C1D','#5B4B9C','#B3432B','#3E7A3E'];
+
+/* ---------- Project NOBODY: lifecycle, disposition engine, booking gate, ladder, compliance ---------- */
+const STAGE_LABEL = {
+  NEW:'New', WORKING:'Working', ENGAGED:'Engaged', QUALIFIED:'Qualified',
+  SV_SOFT:'SV · Soft hold', SV_HARD:'SV · Confirmed', SV_DONE:'SV · Done',
+  PARKED:'Parked', DNC:'DNC', DISQUALIFIED:'Disqualified', EXHAUSTED:'Exhausted'
+};
+const STAGE_CLASS = {
+  NEW:'st-new', WORKING:'st-followup', ENGAGED:'st-engaged', QUALIFIED:'st-qualified',
+  SV_SOFT:'st-svsoft', SV_HARD:'st-svhard', SV_DONE:'st-qualified',
+  PARKED:'st-new', DNC:'st-rnr', DISQUALIFIED:'st-rnr', EXHAUSTED:'st-new'
+};
+/* Every call/message outcome routes to exactly one of four paths */
+const DISPOSITIONS = {
+  'V-RNR':    {route:'NO_CONNECT',   label:'Voice · rang, no reply'},
+  'V-NP-R':   {route:'NO_CONNECT',   label:'Voice · not reachable'},
+  'V-BOOKED': {route:'POSITIVE',     label:'Voice · site visit booked'},
+  'V-ENGAGED':{route:'POSITIVE',     label:'Voice · engaged, qualifying'},
+  'W-T-Q':    {route:'POSITIVE',     label:'WhatsApp · text, qualified'},
+  'V-FOLLOWUP':{route:'NOT_READY',   label:'Voice · not ready yet'},
+  'W-T-FU':   {route:'NOT_READY',    label:'WhatsApp · text, follow up'},
+  'V-DNC':    {route:'HOSTILE_STOP', label:'Voice · asked to stop'},
+  'V-HOSTILE':{route:'HOSTILE_STOP', label:'Voice · hostile'}
+};
+const LADDER_MAX_CALLS = 6, LADDER_MAX_WA = 3, LADDER_MAX_DAYS = 15;
+
+/* Booking Gate: a visit only gets a HARD confirm if it clears all four checks */
+function passesGate(g){ return !!(g && g.project && g.budget && g.family && g.travel); }
+
+/* Compliance rails: India DND window, 10:00–21:00 IST */
+function inCallingWindow(){
+  const h = Number(new Date().toLocaleString('en-US', {timeZone:'Asia/Kolkata', hour:'2-digit', hour12:false}));
+  return h >= 10 && h < 21;
+}
+function renderComplianceBadge(){
+  const el = document.getElementById('pbComplianceBadge');
+  if(!el) return;
+  const ok = inCallingWindow();
+  el.textContent = ok ? 'Inside legal calling window (10:00–21:00 IST)' : 'Outside legal calling window — calls queue, not dialed';
+  el.classList.toggle('ok', ok);
+  el.classList.toggle('blocked', !ok);
+}
+
+let leads = [
+  {name:'Omar Al Farsi', phone:'+971 50 234 5671', email:'omar.al.farsi@example.com', project:'Marina Vista Residences', channel:'call', verified:true, stage:'SV_HARD', temp:'hot', disposition:'V-BOOKED', gate:{project:true,budget:true,family:true,travel:true}, ladder:{day:1,calls:1,whatsapp:0}, optOut:false, nextAction:'Confirmed — T-24h/T-3h/T-90m reminders + cab dispatch scheduled', lookingFor:'2BR, marina view, ready to move in the next 30 days, budget up to AED 2.3M.'},
+  {name:'James Whitfield', phone:'+971 55 118 2049', email:'james.whitfield@example.com', project:'Marina Vista Residences', channel:'whatsapp', verified:false, stage:'ENGAGED', temp:'warm', disposition:'V-FOLLOWUP', gate:{project:true,budget:true,family:false,travel:false}, ladder:{day:1,calls:1,whatsapp:0}, optOut:false, nextAction:'Send brochure, confirm family + travel plan next call', lookingFor:'2BR for relocation, comparing 2–3 buildings, wants payment plan details first.'},
+  {name:'Fatima Al Zaabi', phone:'+971 52 903 4417', email:'fatima.al.zaabi@example.com', project:'Downtown Skyline Tower', channel:'call', verified:false, stage:'WORKING', temp:'cold', disposition:'V-RNR', gate:{project:false,budget:false,family:false,travel:false}, ladder:{day:2,calls:2,whatsapp:1}, optOut:false, nextAction:'Ladder · retry call, day 2 of 15', lookingFor:'3BR off-plan, Burj Khalifa view, timeline unclear — never picked up.'},
+  {name:'Anya Petrova', phone:'+971 56 447 2938', email:'anya.petrova@example.com', project:'Marina Vista Residences', channel:'email', verified:false, stage:'NEW', temp:null, disposition:null, gate:{project:false,budget:false,family:false,travel:false}, ladder:{day:1,calls:0,whatsapp:0}, optOut:false, nextAction:'Call to qualify', lookingFor:'Enquiry just came in — interest and budget not yet confirmed.'},
+  {name:'Rohan Kapoor', phone:'+971 54 771 0026', email:'rohan.kapoor@example.com', project:'Palm Horizon Villas', channel:'call', verified:true, stage:'SV_SOFT', temp:'hot', disposition:'V-BOOKED', gate:{project:true,budget:true,family:true,travel:false}, ladder:{day:1,calls:1,whatsapp:0}, optOut:false, nextAction:'Soft hold — missing: travel plan', lookingFor:'2BR villa, private beach access, cash buyer, wants a site visit this week.'},
+  {name:'Layla Hussain', phone:'+971 50 662 8814', email:'layla.hussain@example.com', project:'Downtown Skyline Tower', channel:'whatsapp', verified:false, stage:'ENGAGED', temp:'warm', disposition:'V-FOLLOWUP', gate:{project:true,budget:false,family:false,travel:false}, ladder:{day:3,calls:2,whatsapp:1}, optOut:false, nextAction:'Send payment plan, revisit budget fit', lookingFor:'3BR off-plan, interested but waiting on her own property sale to close.'},
+  {name:'Chen Wei', phone:'+971 58 391 7750', email:'chen.wei@example.com', project:'Palm Horizon Villas', channel:'whatsapp', verified:false, stage:'WORKING', temp:'cold', disposition:'W-T-FU', gate:{project:false,budget:false,family:false,travel:false}, ladder:{day:5,calls:3,whatsapp:2}, optOut:false, nextAction:'Ladder · WhatsApp only, day 5 of 15', lookingFor:'2BR villa investment, WhatsApp replies only so far, no call answered.'},
+  {name:'Sara Al Mansoori', phone:'+971 52 205 6693', email:'sara.al.mansoori@example.com', project:'Marina Vista Residences', channel:'sms', verified:false, stage:'NEW', temp:null, disposition:null, gate:{project:false,budget:false,family:false,travel:false}, ladder:{day:1,calls:0,whatsapp:0}, optOut:false, nextAction:'Call to qualify', lookingFor:'Enquiry just came in — interest and budget not yet confirmed.'}
+];
+
+let AGENT_CONFIG = { name:'Layla', company:'Loopline Realty Dubai', tone:'warm and direct' };
+let callLog = [];
+
+
+/* ---------- Qualification channels + admin inbox (frontend prototype) ---------- */
+const channelLabels = {email:'Email', phone:'Phone call', whatsapp:'WhatsApp', sms:'SMS'};
+let selectedLeadIndex = null;
+let selectedChannel = null;
+let selectedConversation = null;
+let adminTakeover = false;
+let conversations = [
+  {id:'c1', leadIndex:0, channel:'whatsapp', status:'Needs attention', temperature:'warm', disposition:'W-T-FU', nextAction:'Confirm budget', score:62, followup:'Tomorrow, 11:00 AM', summary:'Interested in the 2BR, has not confirmed budget yet.', messages:[
+    {from:'lead', text:'Hi, I am interested in the 2BR. Can you share the payment plan?'},
+    {from:'ai', text:'Absolutely. Before I share the details, may I ask what budget range you are comfortable with?'}
+  ]},
+  {id:'c2', leadIndex:4, channel:'email', status:'AI active', temperature:'warm', disposition:'V-FOLLOWUP', nextAction:'Revisit budget fit', score:58, followup:'In 3 days', summary:'Comparing options; own property sale needs to close before committing.', messages:[
+    {from:'ai', text:'Hi Layla, thanks for your enquiry about Downtown Skyline Tower. Are you looking to purchase soon, or are you still comparing options?'},
+    {from:'lead', text:'I am comparing a few options. My own property sale needs to close first.'}
+  ]},
+  {id:'c3', leadIndex:6, channel:'sms', status:'AI active', temperature:'cold', disposition:'W-T-FU', nextAction:'Wait for reply', score:24, followup:'Day 5 of 15 · ladder', summary:'No confirmed reply yet on this channel.', messages:[
+    {from:'ai', text:'Hi Sara, this is Loopline. Are you still interested in Marina Vista Residences? Reply YES and we can continue.'}
+  ]}
+];
+
+/* ---------- Live backend connection (real Twilio/email outreach) ---------- */
+let LIVE = { apiBase: localStorage.getItem('loopline_api_base') || '', adminKey: localStorage.getItem('loopline_admin_key') || '', connected: false };
+
+function openLiveSettings(){
+  document.getElementById('apiBaseInput').value = LIVE.apiBase;
+  document.getElementById('adminKeyInput').value = LIVE.adminKey;
+  document.getElementById('liveSettingsStatus').textContent = '';
+  document.getElementById('liveSettingsModal').classList.add('show');
+}
+function closeLiveSettings(){ document.getElementById('liveSettingsModal').classList.remove('show'); }
+
+async function testAndSaveLiveSettings(){
+  const apiBase = document.getElementById('apiBaseInput').value.trim().replace(/\/$/, '');
+  const adminKey = document.getElementById('adminKeyInput').value.trim();
+  const statusEl = document.getElementById('liveSettingsStatus');
+  if(!apiBase || !adminKey){ statusEl.textContent = 'Both fields are required.'; statusEl.style.color = '#c94f4f'; return; }
+  statusEl.textContent = 'Testing connection…'; statusEl.style.color = 'var(--ink-soft)';
+  try{
+    const res = await fetch(apiBase + '/leads', { headers: { 'X-Admin-Key': adminKey, 'ngrok-skip-browser-warning': 'true' } });
+    if(res.ok){
+      LIVE = { apiBase, adminKey, connected: true };
+      localStorage.setItem('loopline_api_base', apiBase);
+      localStorage.setItem('loopline_admin_key', adminKey);
+      statusEl.textContent = 'Connected.'; statusEl.style.color = '#2f9e5c';
+      updateLiveStatusIndicator();
+      loadLiveData();
+      startLivePolling();
+      setTimeout(closeLiveSettings, 700);
+    } else if(res.status === 403){
+      statusEl.textContent = 'Connected, but the admin key was rejected.'; statusEl.style.color = '#c94f4f';
+    } else {
+      statusEl.textContent = `Server responded with ${res.status}.`; statusEl.style.color = '#c94f4f';
+    }
+  } catch(err){
+    statusEl.textContent = "Couldn't reach that URL — check it's running and the ngrok tunnel is up."; statusEl.style.color = '#c94f4f';
+  }
+}
+
+function updateLiveStatusIndicator(){
+  const dot = document.getElementById('liveStatusDot'), label = document.getElementById('liveStatusLabel');
+  if(!dot || !label) return;
+  if(LIVE.apiBase && LIVE.adminKey){
+    dot.style.background = '#2f9e5c';
+    label.textContent = 'Live outreach connected';
+  } else {
+    dot.style.background = '#c94f4f';
+    label.textContent = 'Not connected';
+  }
+  updateAdPlannerMode();
+}
+
+/* Ad planner switches between "draft a text proposal" (no backend) and
+   "actually create a real, paused campaign on Meta + Google" (live). */
+function updateAdPlannerMode(){
+  const liveFields = document.getElementById('apLiveFields');
+  const heading = document.getElementById('apHeading');
+  const sub = document.getElementById('apSub');
+  const btn = document.getElementById('apSubmitBtn');
+  if(!liveFields) return;
+  if(LIVE.apiBase && LIVE.adminKey){
+    liveFields.style.display = 'block';
+    heading.textContent = 'Launch a campaign, paused and ready for review';
+    sub.textContent = 'This creates a real campaign on Meta and Google Ads — paused, so it won\'t spend until you activate it in Ads Manager.';
+    btn.textContent = 'Create campaign (paused)';
+  } else {
+    liveFields.style.display = 'none';
+    heading.textContent = 'Propose a campaign before it spends a rupee';
+    sub.textContent = 'Connect a live backend (top-right) to actually create the campaign — for now this drafts a text proposal.';
+    btn.textContent = 'Generate proposal';
+  }
+}
+
+/* Fires the real outreach through your chatbot.py backend. Channel is
+   'whatsapp'|'sms'|'call'|'email'. Returns true/false so the UI can show
+   a toast either way — this never blocks the simulated dashboard flow. */
+async function sendRealOutreach(lead, channel){
+  if(!LIVE.apiBase || !LIVE.adminKey) return { ok:false, skipped:true };
+  const contact = channel === 'email' ? lead.email : lead.phone.replace(/\s+/g, '');
+  try{
+    const res = await fetch(LIVE.apiBase + '/outreach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': LIVE.adminKey, 'ngrok-skip-browser-warning': 'true' },
+      body: JSON.stringify({ contact, channel, lead_name: lead.name, project: lead.project })
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok) return { ok:false, error: data.error || `HTTP ${res.status}` };
+    return { ok:true, data };
+  } catch(err){
+    return { ok:false, error: 'Network error — is the backend/ngrok tunnel running?' };
+  }
+}
+
+function showOutreachToast(result, channel){
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:999;padding:12px 16px;font-size:13px;font-family:Inter,sans-serif;box-shadow:0 12px 28px -10px rgba(25,29,36,.35);max-width:320px;';
+  if(result.skipped){
+    el.style.background = '#fff'; el.style.border = '1px solid var(--line)'; el.style.color = 'var(--ink-soft)';
+    el.textContent = 'Simulated only — connect a live backend (top-right) to actually send this.';
+  } else if(result.ok){
+    el.style.background = '#eafaf0'; el.style.border = '1px solid #2f9e5c'; el.style.color = '#1d6b3f';
+    el.textContent = `Live ${channel} sent for real via Twilio${channel==='email' ? '/SMTP' : ''}.`;
+  } else {
+    el.style.background = '#fdecec'; el.style.border = '1px solid #c94f4f'; el.style.color = '#8f2f2f';
+    el.textContent = `Live ${channel} failed: ${result.error}`;
+  }
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+updateLiveStatusIndicator();
+
+/* ---------- Live data: replace the mock leads/conversations with what
+   chatbot.py actually has, once a live backend is connected ---------- */
+const QUAL_FIELDS = ['property_type', 'location', 'bedrooms', 'budget', 'timeline'];
+let livePollTimer = null;
+
+function mapBackendLead(row){
+  const filled = QUAL_FIELDS.filter(f => row[f]).length;
+  const qualified = !!row.qualified;
+  let stage = 'NEW';
+  if(qualified) stage = 'QUALIFIED';
+  else if(filled > 0) stage = 'ENGAGED';
+  else if(row.last_channel) stage = 'WORKING';
+  let temp = null;
+  if(filled >= 5) temp = 'hot';
+  else if(filled >= 3) temp = 'warm';
+  else if(filled >= 1) temp = 'cold';
+  const displayPhone = (row.phone || '').replace(/^whatsapp:/, '').replace(/^email:/, '');
+  const lookingForParts = [];
+  if(row.property_type) lookingForParts.push(row.property_type);
+  if(row.bedrooms) lookingForParts.push(row.bedrooms);
+  if(row.location) lookingForParts.push(`in ${row.location}`);
+  if(row.budget) lookingForParts.push(`budget ${row.budget}`);
+  if(row.timeline) lookingForParts.push(`timeline: ${row.timeline}`);
+  const nextAction = qualified ? 'Qualified — ready for a counsellor'
+    : row.last_channel ? `Awaiting reply on ${channelLabels[row.last_channel] || row.last_channel}`
+    : 'Send first outreach';
+  return {
+    key: row.phone,
+    name: row.name || displayPhone || 'Unnamed lead',
+    phone: displayPhone,
+    email: row.email || '',
+    project: row.project || '',
+    verified: qualified,
+    stage, temp,
+    channel: row.last_channel || null,
+    disposition: null,
+    // Loopline's booking-gate/ladder fields don't have a backend
+    // equivalent yet (chatbot.py only tracks the 5 qualification
+    // fields below) — they default to "nothing confirmed" rather than
+    // being invented, and get filled in once that logic exists.
+    gate: { project: !!row.property_type, budget: !!row.budget, family: !!row.bedrooms, travel: !!row.timeline },
+    ladder: { day: 1, calls: 0, whatsapp: 0 },
+    optOut: false,
+    humanTakeover: !!row.human_takeover,
+    nextAction,
+    lookingFor: lookingForParts.length ? lookingForParts.join(', ') : 'Enquiry just came in — no details collected yet.'
+  };
+}
+
+function mapBackendConversation(convo){
+  const leadIndex = leads.findIndex(l => l.key === convo.key);
+  const filled = QUAL_FIELDS.filter(f => convo.fields && convo.fields[f]).length;
+  const summaryParts = [];
+  QUAL_FIELDS.forEach(f => { if(convo.fields && convo.fields[f]) summaryParts.push(`${f.replace('_', ' ')}: ${convo.fields[f]}`); });
+  return {
+    id: 'live_' + convo.key,
+    leadIndex,
+    channel: convo.channel || 'whatsapp',
+    status: convo.human_takeover ? 'Human active' : (convo.qualified ? 'Completed' : 'AI active'),
+    temperature: leadIndex >= 0 ? leads[leadIndex].temp : null,
+    disposition: null,
+    nextAction: convo.qualified ? 'Ready for a counsellor' : 'Awaiting reply',
+    score: Math.round((filled / QUAL_FIELDS.length) * 100),
+    followup: convo.qualified ? 'None — resolved' : 'Pending next reply',
+    summary: summaryParts.length ? summaryParts.join(' · ') : 'No qualification details collected yet.',
+    messages: (convo.messages || []).map(m => ({
+      from: m.role === 'user' ? 'lead' : (m.role === 'admin' ? 'admin' : 'ai'),
+      text: m.content
+    }))
+  };
+}
+
+async function loadLiveData(){
+  if(!LIVE.apiBase || !LIVE.adminKey) return;
+  try{
+    const headers = { 'X-Admin-Key': LIVE.adminKey, 'ngrok-skip-browser-warning': 'true' };
+    const [leadsRes, convRes] = await Promise.all([
+      fetch(LIVE.apiBase + '/leads', { headers }),
+      fetch(LIVE.apiBase + '/conversations', { headers })
+    ]);
+    if(!leadsRes.ok || !convRes.ok) return;
+    const leadsData = await leadsRes.json();
+    const convData = await convRes.json();
+
+    leads = leadsData.map(mapBackendLead);
+    conversations = convData.map(mapBackendConversation).filter(c => c.leadIndex >= 0);
+
+    renderRows();
+    renderDashboard();
+    renderConversations();
+    loadAdsOverview();
+    if(selectedConversation && conversations.some(c => c.id === selectedConversation)){
+      selectConversation(selectedConversation);
+    }
+  } catch(err){
+    // Network hiccup mid-poll — keep showing the last known data rather than clearing the screen.
+  }
+}
+
+function startLivePolling(){
+  if(livePollTimer) return;
+  livePollTimer = setInterval(loadLiveData, 8000);
+}
+
+// If credentials were saved from a previous session, silently reconnect on load.
+if(LIVE.apiBase && LIVE.adminKey){
+  fetch(LIVE.apiBase + '/leads', { headers: { 'X-Admin-Key': LIVE.adminKey, 'ngrok-skip-browser-warning': 'true' } })
+    .then(res => {
+      if(res.ok){
+        LIVE.connected = true;
+        updateLiveStatusIndicator();
+        loadLiveData();
+        startLivePolling();
+      }
+    })
+    .catch(() => {});
+}
+
+function openChannelChooser(i){
+  selectedLeadIndex = i;
+  const lead = leads[i];
+  document.getElementById('channelLeadName').textContent = `Qualify ${lead.verified ? lead.name : maskName(lead.name)}`;
+  document.getElementById('channelChooser').classList.add('show');
+}
+function closeChannelChooser(){ document.getElementById('channelChooser').classList.remove('show'); }
+async function startQualification(channel){
+  selectedChannel = channel;
+  closeChannelChooser();
+  const lead = leads[selectedLeadIndex];
+
+  // channel names differ slightly between the dashboard's UI labels and
+  // the backend's /outreach contract ('phone' here means a real call)
+  const backendChannel = channel === 'phone' ? 'call' : channel;
+  const result = await sendRealOutreach(lead, backendChannel);
+  showOutreachToast(result, backendChannel);
+
+  if(channel === 'phone'){
+    openPopup(selectedLeadIndex, {target:{closest:()=>document.querySelector('.call-btn')}});
+    return;
+  }
+
+  if(LIVE.connected && result.ok){
+    const leadKey = lead.key;
+    await loadLiveData();
+    switchView('conversations');
+    const c = conversations.find(x => leads[x.leadIndex] && leads[x.leadIndex].key === leadKey);
+    if(c) selectConversation(c.id);
+    return;
+  }
+
+  const id = getOrCreateConversation(selectedLeadIndex, channel);
+  switchView('conversations');
+  selectConversation(id);
+}
+function openingLine(lead, channel){
+  return channel==='email'
+    ? `Subject: Quick question about ${lead.project}\n\nHi ${lead.name.split(' ')[0]}, thanks for your enquiry. Before I send the right details, what budget range are you considering?`
+    : channel==='whatsapp'
+    ? `Hi ${lead.name.split(' ')[0]}, thanks for your enquiry about ${lead.project}. What budget range are you considering?`
+    : `Hi ${lead.name.split(' ')[0]}, this is Loopline regarding ${lead.project}. Are you still interested?`;
+}
+function getOrCreateConversation(leadIndex, channel){
+  let c = conversations.find(x=>x.leadIndex===leadIndex && x.channel===channel && x.status!=='Completed');
+  if(c) return c.id;
+  const lead = leads[leadIndex];
+  const id = 'c' + (conversations.length + 1) + '_' + Date.now();
+  c = {id, leadIndex, channel, status:'AI active', temperature: lead.temp, disposition: lead.disposition, nextAction:'Awaiting reply', score:null, followup:'Pending first reply', summary:'Conversation just started — no signals collected yet.', messages:[
+    {from:'ai', text: openingLine(lead, channel)}
+  ]};
+  conversations.push(c);
+  return id;
+}
+function escapeHtml(v){ return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+
+function renderConversations(){
+  const list=document.getElementById('chatList'); if(!list) return; list.innerHTML='';
+  conversations.forEach(c=>{
+    const l=leads[c.leadIndex];
+    const el=document.createElement('div'); el.className='chat-item'+(selectedConversation===c.id?' active':'');
+    el.onclick=()=>selectConversation(c.id);
+    el.innerHTML=`<div class="chat-item-top"><span class="chat-item-name">${escapeHtml(l.name)}</span><span class="chat-item-time">now</span></div><div class="chat-item-preview">${escapeHtml(c.messages[c.messages.length-1]?.text||'')}</div><div class="chat-channel">${channelLabels[c.channel]} · ${c.status}</div>`;
+    list.appendChild(el);
+  });
+}
+function selectConversation(id){
+  selectedConversation=id; adminTakeover=false;
+  const c=conversations.find(x=>x.id===id), l=leads[c.leadIndex];
+  const transcript=document.getElementById('chatTranscript'); transcript.innerHTML='';
+  c.messages.forEach(m=>addInboxBubble(m.from,m.text));
+  document.getElementById('chatTitle').textContent=l.name;
+  document.getElementById('chatMeta').textContent=`${channelLabels[c.channel]} · ${l.project} · ${l.phone}`;
+  document.getElementById('chatState').textContent='AI ACTIVE'; document.getElementById('chatState').className='chat-state ai';
+  document.getElementById('adminMessage').disabled=false; document.getElementById('adminSend').disabled=false; document.getElementById('takeoverBtn').disabled=false;
+  document.getElementById('takeoverBtn').textContent='Take over conversation'; document.getElementById('takeoverBtn').classList.remove('active');
+  document.getElementById('resultLead').textContent=l.name;
+  document.getElementById('resultChannel').textContent=channelLabels[c.channel];
+  document.getElementById('resultStatus').textContent=c.status;
+  document.getElementById('resultTemp').textContent=c.temperature;
+  document.getElementById('resultDisposition').textContent=c.disposition;
+  document.getElementById('resultScore').textContent = c.score===null||c.score===undefined ? 'Pending' : c.score+'/100';
+  document.getElementById('resultNext').textContent=c.nextAction;
+  document.getElementById('resultFollowup').textContent=c.followup || '—';
+  document.getElementById('resultSummary').textContent=c.summary || '';
+  renderConversations();
+}
+function addInboxBubble(from,text){
+  const b=document.createElement('div'); b.className='chat-bubble '+from; b.innerHTML=`${escapeHtml(text).replace(/\n/g,'<br>')}<small>${from==='ai'?'AI':from==='admin'?'ADMIN':'LEAD'}</small>`;
+  const t=document.getElementById('chatTranscript'); t.appendChild(b); t.scrollTop=t.scrollHeight;
+}
+function toggleTakeover(){
+  if(!selectedConversation) return;
+  adminTakeover=!adminTakeover;
+  const state=document.getElementById('chatState'), btn=document.getElementById('takeoverBtn');
+  state.textContent=adminTakeover?'HUMAN TAKEOVER':'AI ACTIVE'; state.className='chat-state '+(adminTakeover?'human':'ai');
+  btn.textContent=adminTakeover?'Return to AI':'Take over conversation'; btn.classList.toggle('active',adminTakeover);
+
+  if(LIVE.connected){
+    const c = conversations.find(x=>x.id===selectedConversation);
+    const lead = c ? leads[c.leadIndex] : null;
+    if(lead && lead.key){
+      fetch(LIVE.apiBase + '/conversations/' + encodeURIComponent(lead.key) + '/takeover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': LIVE.adminKey, 'ngrok-skip-browser-warning': 'true' },
+        body: JSON.stringify({ human: adminTakeover })
+      }).catch(() => {});
+    }
+  }
+}
+async function sendAdminMessage(){
+  if(!selectedConversation) return;
+  const el=document.getElementById('adminMessage'), text=el.value.trim(); if(!text) return;
+  if(!adminTakeover) toggleTakeover();
+  el.value='';
+  const c=conversations.find(x=>x.id===selectedConversation);
+  const lead=leads[c.leadIndex];
+  c.messages.push({from:'admin',text}); addInboxBubble('admin',text);
+  c.status='Human active'; document.getElementById('chatMeta').textContent += ' · admin takeover'; renderConversations();
+
+  if(LIVE.connected && lead && lead.key){
+    try{
+      const res = await fetch(LIVE.apiBase + '/conversations/' + encodeURIComponent(lead.key) + '/admin-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': LIVE.adminKey, 'ngrok-skip-browser-warning': 'true' },
+        body: JSON.stringify({ message: text, channel: c.channel })
+      });
+      if(!res.ok){
+        const data = await res.json().catch(() => ({}));
+        showOutreachToast({ ok:false, error: data.error || `HTTP ${res.status}` }, c.channel);
+      }
+    } catch(err){
+      showOutreachToast({ ok:false, error:'Network error — message shown locally but was not actually sent.' }, c.channel);
+    }
+  } else if(!LIVE.connected){
+    showOutreachToast({ skipped:true }, c.channel);
+  }
+}
+function markConversationComplete(){
+  if(!selectedConversation) return;
+  const c=conversations.find(x=>x.id===selectedConversation), l=leads[c.leadIndex];
+  l.status=c.disposition==='W-T-Q'?'Qualified':'Follow Up';
+  l.temp=c.temperature; l.nextAction=c.nextAction; l.stage=c.disposition==='W-T-Q'?'QUALIFIED':'ENGAGED';
+  if(c.disposition==='W-T-Q') l.verified=true;
+  c.status='Completed';
+  document.getElementById('resultStatus').textContent='Completed';
+  document.getElementById('resultFollowup').textContent='None — resolved';
+  renderRows(); renderConversations();
+}
+
+
+function saveAgentConfig(){
+  AGENT_CONFIG = {
+    name: document.getElementById('cfgName').value || 'Layla',
+    company: document.getElementById('cfgCompany').value || 'Loopline',
+    tone: document.getElementById('cfgTone').value
+  };
+  const el = document.getElementById('cfgStatus');
+  el.textContent = 'Saved — the next call from Leads will use this persona.';
+  el.classList.add('form-status-success');
+  setTimeout(()=>{ el.textContent=''; el.classList.remove('form-status-success'); }, 3000);
+}
+
+function initials(name){return name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+function maskName(name){const parts=name.split(' ');return parts.map(p=>p[0]+'*'.repeat(Math.max(p.length-1,3))).join(' ');}
+function maskPhone(phone){return phone.slice(0,5)+' XX'+phone.slice(-3);}
+
+function renderRows(){
+  const wrap = document.getElementById('rows');
+  wrap.innerHTML = '';
+  leads.forEach((l, i)=>{
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="who">
+        <div class="avatar" style="background:${COLORS[i % COLORS.length]}">${initials(l.name)}</div>
+        <div>
+          <div class="name ${l.verified?'':'masked'}">${l.verified ? l.name : maskName(l.name)}</div>
+          <div class="phone">${l.verified ? l.phone : maskPhone(l.phone)}</div>
+        </div>
+      </div>
+      <div class="project">${l.project}</div>
+      <div><span class="status-pill ${STAGE_CLASS[l.stage] || 'st-new'}">${STAGE_LABEL[l.stage] || l.stage}</span></div>
+      <div class="temp ${l.temp ? '' : 'none'}">
+        <span class="temp-dot ${l.temp || 'none'}"></span>${l.temp ? l.temp[0].toUpperCase()+l.temp.slice(1) : '—'}
+      </div>
+      <button class="call-btn" onclick="openChannelChooser(${i})">Follow up</button>
+    `;
+    row.addEventListener('mouseenter', function(){ showLeadPreview(i, row); });
+    row.addEventListener('mouseleave', function(){ hideLeadPreview(); });
+    wrap.appendChild(row);
+  });
+  const total = leads.length, v = leads.filter(l=>l.verified).length;
+  const qualifiedCount = leads.filter(l=>['QUALIFIED','SV_SOFT','SV_HARD','SV_DONE'].includes(l.stage)).length;
+  const hotCount = leads.filter(l=>l.temp === 'hot').length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statVerified').textContent = v;
+  document.getElementById('statRate').textContent = Math.round(v/total*100)+'% verification rate';
+  document.getElementById('statQualified').textContent = qualifiedCount;
+  document.getElementById('statHot').textContent = hotCount;
+}
+renderRows();
+renderConversations();
+
+/* ---------- Lead row hover preview: next-action card ---------- */
+let previewEl = null, previewTimer = null;
+function ensurePreviewEl(){
+  if(previewEl) return previewEl;
+  previewEl = document.createElement('div');
+  previewEl.className = 'lead-preview';
+  document.querySelector('.app-shell').appendChild(previewEl);
+  previewEl.addEventListener('mouseenter', function(){ if(previewTimer) clearTimeout(previewTimer); });
+  previewEl.addEventListener('mouseleave', function(){ hideLeadPreview(); });
+  return previewEl;
+}
+function showLeadPreview(i, row){
+  if(previewTimer) clearTimeout(previewTimer);
+  const l = leads[i];
+  const el = ensurePreviewEl();
+  el.innerHTML = `
+    <div class="lp-head">
+      <div class="lp-avatar" style="background:${COLORS[i % COLORS.length]}">${initials(l.name)}</div>
+      <div>
+        <div class="lp-name">${l.verified ? l.name : maskName(l.name)}</div>
+        <div class="lp-meta">${l.verified ? l.phone : maskPhone(l.phone)} · ${l.project}</div>
+      </div>
+      <span class="lp-ai-tag">AI suggested</span>
+    </div>
+    <div class="lp-label">Looking for</div>
+    <p class="lp-looking-for">${l.lookingFor}</p>
+    <div class="lp-label">Booking gate</div>
+    <div class="gate-row">
+      <span class="gate-chip ${l.gate.project?'pass':''}">Project</span>
+      <span class="gate-chip ${l.gate.budget?'pass':''}">Budget</span>
+      <span class="gate-chip ${l.gate.family?'pass':''}">Family</span>
+      <span class="gate-chip ${l.gate.travel?'pass':''}">Travel</span>
+    </div>
+    <div class="lp-label">Ladder</div>
+    <div class="ladder-meta">Day ${l.ladder.day} of ${LADDER_MAX_DAYS} · ${l.ladder.calls}/${LADDER_MAX_CALLS} calls · ${l.ladder.whatsapp}/${LADDER_MAX_WA} WhatsApp</div>
+    ${l.disposition ? `<div class="disposition-tag" style="margin-top:4px;">${DISPOSITIONS[l.disposition] ? DISPOSITIONS[l.disposition].label : l.disposition}</div>` : ''}
+    <div class="lp-label">Next action</div>
+    <button class="lp-action-btn" onclick="openChannelChooser(${i})">${l.nextAction}</button>
+  `;
+  const rect = row.getBoundingClientRect();
+  const shellRect = document.querySelector('.app-shell').getBoundingClientRect();
+  el.style.top = (rect.bottom - shellRect.top + document.querySelector('.app-shell').scrollTop + 6) + 'px';
+  el.style.left = Math.max(0, rect.left - shellRect.left) + 'px';
+  el.classList.add('show');
+}
+function hideLeadPreview(){
+  if(previewTimer) clearTimeout(previewTimer);
+  previewTimer = setTimeout(function(){ if(previewEl) previewEl.classList.remove('show'); }, 120);
+}
+
+function renderDashboard(){
+  const total = leads.length, v = leads.filter(l=>l.verified).length;
+  document.getElementById('dbTotal').textContent = total;
+  document.getElementById('dbCalls').textContent = callLog.length;
+  document.getElementById('dbVerified').textContent = v;
+  document.getElementById('dbRate').textContent = Math.round(v/total*100)+'% verification rate';
+  const list = document.getElementById('activityList');
+  if(!callLog.length){ list.innerHTML = '<li><span>No calls yet this session</span><span>—</span></li>'; }
+  else { list.innerHTML = callLog.slice().reverse().map(c=>`<li><span class="who">${c.name}</span><span>${c.outcome}</span></li>`).join(''); }
+  renderLeadSourceBreakdown();
+}
+
+/* ---------- Ad performance (Meta + Google) ----------
+   Live mode: pulled from GET /ads/overview on chatbot.py, which returns
+   mock Meta/Google-style campaign metrics blended with Loopline's real
+   qualification rate (see ads_data.py — that's the only file that needs
+   to change to go live with real ad accounts).
+   Offline/demo mode: a static local snapshot so this panel isn't empty
+   before you've ever connected a backend. */
+const LOCAL_MOCK_ADS_OVERVIEW = {
+  total_spend: 16108.62, total_ad_leads: 244, real_total_leads: 8, real_qualified_leads: 1,
+  real_qualification_rate: 12.5, cost_per_lead: 66.0, cost_per_qualified_lead: 528.15,
+  campaigns: [
+    {id:'meta_camp_01', platform:'meta', name:'Marina Vista — Retarget Warm Audience', status:'Active', spend:5007.19, leads:89, ctr:1.24, cpc:0.32, cpl:56.26, est_qualified_leads:11.1, est_cpql:451.9},
+    {id:'meta_camp_02', platform:'meta', name:'Downtown 2BR — Lookalike 1%', status:'Active', spend:906.39, leads:17, ctr:1.19, cpc:0.31, cpl:53.32, est_qualified_leads:2.1, est_cpql:428.9},
+    {id:'google_camp_01', platform:'google', name:'Search — "2BR apartment Dubai Marina"', status:'Active', spend:5247.15, leads:97, ctr:1.46, cpc:0.32, cpl:54.09, est_qualified_leads:12.1, est_cpql:433.6},
+    {id:'google_camp_02', platform:'google', name:'Search — "villas for sale UAE"', status:'Active', spend:1816.05, leads:27, ctr:1.39, cpc:0.39, cpl:67.26, est_qualified_leads:3.4, est_cpql:539.1},
+    {id:'google_camp_03', platform:'google', name:'Display — Remarketing', status:'Active', spend:2251.91, leads:30, ctr:1.44, cpc:0.42, cpl:75.06, est_qualified_leads:3.8, est_cpql:600.5}
+  ]
+};
+
+function renderAdsOverview(data, isLive){
+  document.getElementById('adsModeTag').textContent = isLive ? '(live from your backend)' : '(mock data — connect a backend for live numbers)';
+  document.getElementById('adSpend').textContent = 'AED ' + data.total_spend.toLocaleString();
+  document.getElementById('adLeads').textContent = data.total_ad_leads.toLocaleString();
+  document.getElementById('adCPL').textContent = 'AED ' + data.cost_per_lead.toLocaleString() + ' cost per lead';
+  document.getElementById('adQualRate').textContent = data.real_qualification_rate + '%';
+  document.getElementById('adCPQL').textContent = data.cost_per_qualified_lead ? 'AED ' + data.cost_per_qualified_lead.toLocaleString() : '—';
+
+  const platformLabel = { meta: 'Meta', google: 'Google' };
+  const table = document.getElementById('campaignTable');
+  const rows = data.campaigns.map(c => `
+    <tr>
+      <td>${c.name}</td>
+      <td>${platformLabel[c.platform] || c.platform}</td>
+      <td>AED ${c.spend.toLocaleString()}</td>
+      <td>${c.leads.toLocaleString()}</td>
+      <td>${c.status === 'Paused' ? '—' : c.ctr + '%'}</td>
+      <td>${c.status === 'Paused' ? '—' : 'AED ' + c.cpc}</td>
+      <td>${c.status === 'Paused' ? '—' : 'AED ' + c.cpl}</td>
+      <td>${c.est_qualified_leads || 0}</td>
+      <td>${c.est_cpql ? 'AED ' + c.est_cpql : '—'}</td>
+    </tr>`).join('');
+  table.innerHTML = '<tr><th>Campaign</th><th>Platform</th><th>Spend</th><th>Leads</th><th>CTR</th><th>CPC</th><th>CPL</th><th>Est. qualified</th><th>Est. CPQL</th></tr>' + rows;
+}
+
+async function loadAdsOverview(){
+  if(LIVE.connected){
+    try{
+      const res = await fetch(LIVE.apiBase + '/ads/overview', { headers: { 'X-Admin-Key': LIVE.adminKey, 'ngrok-skip-browser-warning': 'true' } });
+      if(res.ok){
+        renderAdsOverview(await res.json(), true);
+        return;
+      }
+    } catch(err){ /* fall through to mock below */ }
+  }
+  renderAdsOverview(LOCAL_MOCK_ADS_OVERVIEW, false);
+}
+
+function renderLeadSourceBreakdown(){
+  const el = document.getElementById('leadSourceBreakdown');
+  if(!el) return;
+  const labels = { whatsapp:'WhatsApp', sms:'SMS', call:'Phone call', email:'Email' };
+  const counts = {};
+  leads.forEach(l => { const ch = l.channel || 'not_yet_contacted'; counts[ch] = (counts[ch] || 0) + 1; });
+  const total = leads.length || 1;
+  const order = ['whatsapp', 'sms', 'call', 'email', 'not_yet_contacted'];
+  el.innerHTML = order.filter(k => counts[k]).map(k => {
+    const pct = Math.round((counts[k] / total) * 100);
+    const label = labels[k] || 'Not yet contacted';
+    return `<div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:120px;font-size:12px;color:var(--ink-soft);">${label}</div>
+      <div style="flex:1;height:8px;background:var(--paper-dim);border-radius:4px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--teal);"></div></div>
+      <div style="width:70px;text-align:right;font-size:12px;">${counts[k]} · ${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+loadAdsOverview();
+
+/* ---------- Call popup (shared brain, used from Leads) ---------- */
+let activeIndex = null, messages = [], recognition = null, isListening = false;
+
+function openPopup(i, evt){
+  activeIndex = i;
+  messages = [];
+  document.getElementById('pTranscript').innerHTML = '';
+  const popup = document.getElementById('popup');
+  const rect = evt.target.closest('.call-btn').getBoundingClientRect();
+  popup.style.top = (window.scrollY + rect.bottom + 8) + 'px';
+  popup.style.left = Math.max(20, rect.right - 340 + window.scrollX) + 'px';
+  popup.classList.add('show');
+  setPStatus('checking DND registry…');
+  setupRecognition();
+
+  const lead = leads[i];
+  setTimeout(()=>{
+    // Rules of the door: the compliance gate cannot be bypassed, no matter the lead quality.
+    if(lead.optOut){
+      setPStatus('opted out — call blocked, do not contact');
+      setTimeout(closePopup, 1400);
+      return;
+    }
+    if(!inCallingWindow()){
+      setPStatus('outside 10:00–21:00 IST window — queued, not dialed');
+      setTimeout(closePopup, 1400);
+      return;
+    }
+    setPStatus('consent verified — connecting…');
+    setTimeout(()=>{
+      setPStatus('live');
+      sendToAgent('[CALL STARTED]', true);
+    }, 700);
+  }, 700);
+}
+function closePopup(){
+  document.getElementById('popup').classList.remove('show');
+  window.speechSynthesis.cancel();
+  if(recognition) try{recognition.stop();}catch(e){}
+}
+function setPStatus(s){document.getElementById('pStatus').textContent = s;}
+
+function systemPrompt(lead){
+  return `You are ${AGENT_CONFIG.name}, a ${AGENT_CONFIG.tone} AI qualifying caller for ${AGENT_CONFIG.company}. Sound like a real person: short turns (1-2 sentences), natural spoken phrasing, never a monologue.
+
+LEAD: ${lead.name.split(' ')[0]}, interested in ${lead.project}.
+LISTING DETAILS (only state facts given here): ${PROJECTS[lead.project]}
+
+RULES:
+- Open with a brief greeting referencing their enquiry about ${lead.project}.
+- Ask short qualifying questions (budget fit, timeline, genuine interest) before pitching details.
+- Be honest, no false urgency, only use listing facts given above.
+- Your goal is to confirm whether this is a genuine, qualified lead worth a human agent's time.
+- Keep every response short — this is a spoken call.
+- First user message is the literal marker [CALL STARTED] — on seeing it, just give the opening greeting.`;
+}
+
+/* Local fallback so the demo still works if the browser can't reach the API directly
+   (no backend key proxy configured on this static deploy). Not a substitute for a
+   real backend — see note at the end of this response. */
+function localFallbackReply(lead, isFirst){
+  if(isFirst){
+    return `Hi ${lead.name.split(' ')[0]}, this is ${AGENT_CONFIG.name} from ${AGENT_CONFIG.company} — calling about your enquiry on ${lead.project}. Is now an okay time?`;
+  }
+  const opts = [
+    "Got it — and roughly what's your budget range for this?",
+    "Understood. Are you looking to move in the next few months, or further out?",
+    "That's helpful, thanks. Would a site visit this weekend work for you?"
+  ];
+  return opts[Math.floor(Math.random()*opts.length)];
+}
+
+async function sendToAgent(text, hidden){
+  const lead = leads[activeIndex];
+  if(!hidden) addBubble('user', text);
+  messages.push({role:'user', content:text});
+  let reply;
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:250, system: systemPrompt(lead), messages})
+    });
+    if(!response.ok) throw new Error('api not reachable');
+    const data = await response.json();
+    reply = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(' ').trim();
+    if(!reply) throw new Error('empty reply');
+  }catch(err){
+    reply = localFallbackReply(lead, hidden);
+  }
+  messages.push({role:'assistant', content: reply});
+  addBubble('agent', reply);
+  speak(reply);
+}
+function addBubble(who, text){
+  const div = document.createElement('div');
+  div.className = 'pbubble ' + (who==='agent'?'agent':'user');
+  div.textContent = text;
+  document.getElementById('pTranscript').appendChild(div);
+  const t = document.getElementById('pTranscript'); t.scrollTop = t.scrollHeight;
+}
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const voices = window.speechSynthesis.getVoices();
+  const pref = voices.find(v=>/en-AE/i.test(v.lang)) || voices.find(v=>/en-GB/i.test(v.lang)) || voices.find(v=>/en/i.test(v.lang));
+  if(pref) u.voice = pref;
+  window.speechSynthesis.speak(u);
+}
+
+function setupRecognition(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ document.getElementById('pMic').disabled = true; return; }
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-AE';
+  recognition.onresult = (e)=>{ const t = e.results[0][0].transcript; if(t.trim()) sendToAgent(t.trim()); };
+  recognition.onend = ()=>{ isListening=false; document.getElementById('pMic').classList.remove('live'); };
+  recognition.onerror = ()=>{ isListening=false; document.getElementById('pMic').classList.remove('live'); };
+}
+function toggleMic(){
+  if(!recognition) return;
+  window.speechSynthesis.cancel();
+  if(isListening){ recognition.stop(); }
+  else{ isListening=true; document.getElementById('pMic').classList.add('live'); recognition.start(); }
+}
+function sendTyped(){
+  const el = document.getElementById('pInput');
+  const val = el.value.trim();
+  if(!val) return;
+  window.speechSynthesis.cancel();
+  el.value = '';
+  sendToAgent(val);
+}
+
+async function endCall(){
+  window.speechSynthesis.cancel();
+  if(recognition) try{recognition.stop();}catch(e){}
+  setPStatus('scoring call…');
+  const lead = leads[activeIndex];
+  let result = heuristicOutcome(lead);
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-6", max_tokens:200, system: systemPrompt(lead),
+        messages: [...messages, {role:'user', content:'Call ended. Classify this lead based on the conversation. Respond ONLY with strict JSON: {"qualified":true|false, "status":"Qualified"|"Follow Up"|"RnR", "temperature":"hot"|"warm"|"cold", "next_action":"a short 2-4 word next step, e.g. Schedule site visit", "looking_for":"one short sentence, in your own words, on what this lead is specifically looking for based on the call"}. Use "RnR" only if the lead never meaningfully responded.'}]
+      })
+    });
+    if(!response.ok) throw new Error('api not reachable');
+    const data = await response.json();
+    const raw = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    result = {
+      qualified: !!parsed.qualified,
+      status: ['Qualified','Follow Up','RnR'].includes(parsed.status) ? parsed.status : (parsed.qualified ? 'Qualified' : 'Follow Up'),
+      temp: ['hot','warm','cold'].includes(parsed.temperature) ? parsed.temperature : (parsed.qualified ? 'hot' : 'warm'),
+      nextAction: parsed.next_action || (parsed.qualified ? 'Schedule site visit' : 'Follow up call'),
+      lookingFor: parsed.looking_for || lead.lookingFor
+    };
+  }catch(err){ /* keep heuristic fallback value */ }
+
+  lead.status = result.status;
+  lead.temp = result.temp;
+  lead.nextAction = result.nextAction;
+  lead.lookingFor = result.lookingFor;
+  if(result.qualified){ lead.verified = true; }
+  renderRows();
+  callLog.push({name:lead.name, outcome: result.status + ' · ' + result.temp});
+  setPStatus(result.qualified ? 'qualified — identity unmasked' : result.status.toLowerCase());
+  setTimeout(closePopup, 1400);
+}
+
+function heuristicOutcome(lead){
+  const qualified = messages.length > 3;
+  return qualified
+    ? {qualified:true, status:'Qualified', temp:'hot', nextAction:'Schedule site visit', lookingFor: lead.lookingFor}
+    : {qualified:false, status: messages.length > 1 ? 'Follow Up' : 'RnR', temp: messages.length > 1 ? 'warm' : 'cold', nextAction: messages.length > 1 ? 'Send brochure' : 'Retry call tomorrow', lookingFor: lead.lookingFor};
+}
+
+/* ---------- Ad planner ---------- */
+async function generateProposal(){
+  if(LIVE.apiBase && LIVE.adminKey){
+    return launchRealCampaign();
+  }
+  const goal = document.getElementById('apGoal').value;
+  const budget = document.getElementById('apBudget').value;
+  const deadline = document.getElementById('apDeadline').value || 'not set';
+  const statusEl = document.getElementById('apStatus');
+  statusEl.textContent = 'Building proposal…';
+
+  const prompt = `Real-estate ad campaign. Goal: ${goal}. Budget: AED ${budget}. Deadline: ${deadline}.
+Respond ONLY with strict JSON: {"platform_split":"...", "audience":"...", "pacing":"...", "predicted_range":"..."}`;
+  let proposal;
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:250, messages:[{role:'user', content:prompt}]})
+    });
+    if(!response.ok) throw new Error('api not reachable');
+    const data = await response.json();
+    const raw = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    proposal = JSON.parse(raw.replace(/```json|```/g,'').trim());
+  }catch(err){
+    proposal = {
+      platform_split: '60% Meta / 40% Google Search',
+      audience: 'Property intenders, 28–50, Dubai metro',
+      pacing: `AED ${Math.round(budget/4)} per week across the campaign window`,
+      predicted_range: '18–30 qualified leads at this budget'
+    };
+  }
+  const card = document.getElementById('proposalCard');
+  card.innerHTML = `
+    <div class="view-eyebrow">Proposal</div>
+    <div class="proposal-row"><span class="k">Platform split</span><span>${proposal.platform_split}</span></div>
+    <div class="proposal-row"><span class="k">Audience</span><span>${proposal.audience}</span></div>
+    <div class="proposal-row"><span class="k">Pacing</span><span>${proposal.pacing}</span></div>
+    <div class="proposal-row"><span class="k">Predicted range</span><span>${proposal.predicted_range}</span></div>
+  `;
+  card.classList.add('show');
+  statusEl.textContent = 'Proposal ready — review and approve before this spends.';
+}
+
+/* Fires POST /ad-planner/launch on chatbot.py, which creates a real,
+   PAUSED campaign on Meta and/or Google Ads. Nothing spends until you
+   activate it in Ads Manager — see ads_launch.py for why. */
+async function launchRealCampaign(){
+  const statusEl = document.getElementById('apStatus');
+  const card = document.getElementById('proposalCard');
+  const goal = document.getElementById('apGoal').value;
+  const budget = document.getElementById('apBudget').value;
+  const deadline = document.getElementById('apDeadline').value;
+  const headline = document.getElementById('apHeadline').value.trim();
+  const body = document.getElementById('apBody').value.trim();
+  const imageUrl = document.getElementById('apImageUrl').value.trim();
+  const countries = document.getElementById('apCountries').value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean);
+  const ageMin = Number(document.getElementById('apAgeMin').value) || 25;
+  const ageMax = Number(document.getElementById('apAgeMax').value) || 55;
+
+  if(!headline || !body){
+    statusEl.textContent = 'Headline and body text are required to create a real campaign.';
+    statusEl.classList.add('form-status-error');
+    return;
+  }
+  if(!countries.length){
+    statusEl.textContent = 'At least one target country is required (e.g. AE).';
+    statusEl.classList.add('form-status-error');
+    return;
+  }
+
+  statusEl.textContent = 'Creating paused campaign on Meta + Google…';
+  statusEl.classList.remove('form-status-error', 'form-status-success');
+
+  try{
+    const res = await fetch(LIVE.apiBase + '/ad-planner/launch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': LIVE.adminKey, 'ngrok-skip-browser-warning': 'true' },
+      body: JSON.stringify({ goal, budget: Number(budget), deadline, headline, body, image_url: imageUrl, countries, age_min: ageMin, age_max: ageMax })
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok){
+      statusEl.textContent = data.error || `Launch failed with HTTP ${res.status}`;
+      statusEl.classList.add('form-status-error');
+      return;
+    }
+
+    const rows = [];
+    if(data.meta && !data.meta.error){
+      rows.push(`<div class="proposal-row"><span class="k">Meta campaign</span><span>Created, paused · id ${data.meta.campaign_id} · AED ${data.meta.daily_budget_aed}/day</span></div>`);
+    } else if(data.meta){
+      rows.push(`<div class="proposal-row"><span class="k">Meta</span><span style="color:#B3432B;">${data.meta.error}</span></div>`);
+    }
+    if(data.google && !data.google.error){
+      rows.push(`<div class="proposal-row"><span class="k">Google campaign</span><span>Created, paused · AED ${data.google.daily_budget_aed}/day</span></div>`);
+    } else if(data.google){
+      rows.push(`<div class="proposal-row"><span class="k">Google</span><span style="color:#B3432B;">${data.google.error}</span></div>`);
+    }
+    card.innerHTML = `<div class="view-eyebrow">Campaign created — paused</div>${rows.join('')}`;
+    card.classList.add('show');
+    statusEl.textContent = 'Created, paused. Review targeting and creative in Ads Manager, then activate when ready.';
+    statusEl.classList.add('form-status-success');
+  } catch(err){
+    statusEl.textContent = "Couldn't reach the backend — check it's running and the ngrok tunnel is up.";
+    statusEl.classList.add('form-status-error');
+  }
+}
+</script>
+</body>
+</html>
