@@ -6,14 +6,14 @@
 <title>Loopline- Automation systems for startups</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header>
   <div class="wrap nav">
-    <div class="logo"><span class="dot"></span>Loopline</div>
+    <div class="logo">Loopline<span class="cursor-blink" aria-hidden="true"></span></div>
     <nav class="nav-links">
       <a href="#services">Services</a>
       <a href="#work">Work</a>
@@ -37,12 +37,19 @@
       <a href="#work" class="btn btn-ghost">See recent work</a>
     </div>
 
-    <div class="flow-strip" role="img" aria-label="Diagram of an automated workflow: new signup, enrich lead, notify team, update CRM">
-      <div class="flow-line" aria-hidden="true"></div>
-      <div class="flow-node" data-node="0"><span class="node-dot"></span><span class="node-label">New signup</span></div>
-      <div class="flow-node" data-node="1"><span class="node-dot"></span><span class="node-label">Enrich lead data</span></div>
-      <div class="flow-node" data-node="2"><span class="node-dot"></span><span class="node-label">Notify team on Slack</span></div>
-      <div class="flow-node" data-node="3"><span class="node-dot"></span><span class="node-label">Update CRM</span></div>
+    <div class="terminal-window" role="img" aria-label="Terminal output of an automated workflow: new signup detected, lead enriched, team notified on Slack, CRM updated">
+      <div class="term-bar">
+        <span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span>
+        <span class="term-title">watch — loopline/automations</span>
+      </div>
+      <div class="term-body">
+        <div class="term-line"><span class="prompt">$</span>loopline watch --client=incoming-leads</div>
+        <div class="term-line out">→ new signup detected</div>
+        <div class="term-line out">→ enriching lead data...</div>
+        <div class="term-line out">→ notify #sales-alerts on Slack</div>
+        <div class="term-line out">→ crm record updated</div>
+        <div class="term-line ok">✓ done in 0.34s<span class="term-cursor" aria-hidden="true"></span></div>
+      </div>
     </div>
     <p class="flow-caption">// example: a lead-routing automation, running unattended, 24/7</p>
   </div>

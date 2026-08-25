@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loopline — Live chatbot demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .demo-wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+  }
+  .demo-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: .04em;
+    color: var(--teal);
+    text-transform: uppercase;
+  }
+  .demo-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(28px, 4vw, 40px);
+    margin: 10px 0 8px;
+    color: var(--ink);
+  }
+  .demo-sub {
+    color: var(--ink-soft);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .setup-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .setup-row input {
+    flex: 1;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper-dim);
+    color: var(--ink);
+  }
+  .setup-row input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+  .setup-row button {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1.5px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .setup-row button:hover { background: var(--amber-deep); border-color: var(--amber-deep); }
+
+  .status-line {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--line);
+  }
+  .status-dot.connected { background: var(--teal); }
+  .status-dot.error { background: #C0392B; }
+
+  .chat-panel {
+    border: 1.5px solid var(--line);
+    border-radius: 16px;
+    background: var(--paper-dim);
+    overflow: hidden;
+  }
+  .chat-log {
+    height: 420px;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .bubble {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    line-height: 1.45;
+    font-size: 14.5px;
+    animation: rise .25s ease;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .bubble.bot {
+    align-self: flex-start;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-bottom-left-radius: 4px;
+  }
+  .bubble.user {
+    align-self: flex-end;
+    background: var(--ink);
+    color: var(--paper);
+    border-bottom-right-radius: 4px;
+  }
+  .bubble.typing { display: flex; gap: 4px; align-items: center; padding: 12px 16px; }
+  .bubble.typing span {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--ink-soft);
+    animation: bounce 1.1s infinite ease-in-out;
+  }
+  .bubble.typing span:nth-child(2) { animation-delay: .15s; }
+  .bubble.typing span:nth-child(3) { animation-delay: .3s; }
+  @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .4; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 14px;
+    border-top: 1.5px solid var(--line);
+    background: var(--paper);
+  }
+  .chat-input-row input {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--line);
+    background: var(--paper-dim);
+    color: var(--ink);
+  }
+  .chat-input-row input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+  .chat-input-row button {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    padding: 11px 20px;
+    border-radius: 10px;
+    border: 1.5px solid var(--amber-deep);
+    background: var(--amber);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .chat-input-row button:hover { background: var(--amber-deep); color: var(--paper); }
+  .chat-input-row button:disabled { opacity: .5; cursor: not-allowed; }
+
+  .fields-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .field-chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--line);
+    color: var(--ink-soft);
+    background: var(--paper);
+  }
+  .field-chip.filled {
+    border-color: var(--teal);
+    color: var(--teal);
+    background: var(--teal-tint);
+  }
+
+  .restart-link {
+    display: inline-block;
+    margin-top: 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .restart-link:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="dot"></span>Loopline</div>
+    <nav class="nav-links">
+      <a href="index.html#services">Services</a>
+      <a href="index.html#work">Work</a>
+      <a href="index.html#process">Process</a>
+      <a href="index.html#contact">Contact</a>
+      <a href="product.html">Products</a>
+    </nav>
+    <a href="index.html#contact" class="btn btn-sm">Start a project</a>
+  </div>
+</header>
+
+<div class="demo-wrap">
+  <span class="demo-eyebrow">● Live demo</span>
+  <h1 class="demo-title">Talk to the qualification bot.</h1>
+  <p class="demo-sub">This is the exact same AI logic that runs behind WhatsApp, SMS, and voice — just wired straight into this page so you can try it without a phone. Tell it what you're looking for and watch it ask the right follow-up questions.</p>
+
+  <div class="setup-row">
+    <input id="apiBaseInput" placeholder="https://your-ngrok-url.ngrok-free.dev" />
+    <button id="connectBtn" type="button">Connect</button>
+  </div>
+  <div class="status-line">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Not connected — paste the backend URL above</span>
+  </div>
+
+  <div class="chat-panel">
+    <div class="chat-log" id="chatLog"></div>
+    <div class="chat-input-row">
+      <input id="chatInput" placeholder="e.g. Looking for a 2 bedroom apartment in Dubai Marina" disabled />
+      <button id="sendBtn" type="button" disabled>Send</button>
+    </div>
+  </div>
+
+  <div class="fields-strip" id="fieldsStrip"></div>
+  <button class="restart-link" id="restartBtn" type="button">Start a new conversation</button>
+</div>
+
+<footer>
+  <div class="wrap footer-row">
+    <span>© 2026 Loopline. Automation systems for startups.</span>
+    <span class="mono"></span>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var FIELDS = [
+    { key: 'property_type', label: 'Property type' },
+    { key: 'location', label: 'Location' },
+    { key: 'bedrooms', label: 'Bedrooms' },
+    { key: 'budget', label: 'Budget' },
+    { key: 'timeline', label: 'Timeline' }
+  ];
+
+  var apiBase = localStorage.getItem('loopline_demo_api_base') || '';
+  var sessionId = localStorage.getItem('loopline_demo_session') || '';
+  var connected = false;
+
+  var apiBaseInput = document.getElementById('apiBaseInput');
+  var connectBtn = document.getElementById('connectBtn');
+  var statusDot = document.getElementById('statusDot');
+  var statusText = document.getElementById('statusText');
+  var chatLog = document.getElementById('chatLog');
+  var chatInput = document.getElementById('chatInput');
+  var sendBtn = document.getElementById('sendBtn');
+  var fieldsStrip = document.getElementById('fieldsStrip');
+  var restartBtn = document.getElementById('restartBtn');
+
+  apiBaseInput.value = apiBase;
+  renderFields({});
+
+  function newSession() {
+    sessionId = 'demo-' + Date.now() + '-' + Math.random().toString(16).slice(2, 8);
+    localStorage.setItem('loopline_demo_session', sessionId);
+  }
+  if (!sessionId) newSession();
+
+  function setStatus(state, text) {
+    statusDot.className = 'status-dot' + (state ? ' ' + state : '');
+    statusText.textContent = text;
+  }
+
+  function addBubble(role, text) {
+    var b = document.createElement('div');
+    b.className = 'bubble ' + role;
+    b.textContent = text;
+    chatLog.appendChild(b);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return b;
+  }
+
+  function addTyping() {
+    var b = document.createElement('div');
+    b.className = 'bubble bot typing';
+    b.innerHTML = '<span></span><span></span><span></span>';
+    chatLog.appendChild(b);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return b;
+  }
+
+  function renderFields(state) {
+    fieldsStrip.innerHTML = '';
+    FIELDS.forEach(function(f) {
+      var chip = document.createElement('span');
+      var val = state && state[f.key];
+      chip.className = 'field-chip' + (val ? ' filled' : '');
+      chip.textContent = val ? (f.label + ': ' + val) : f.label;
+      fieldsStrip.appendChild(chip);
+    });
+  }
+
+  async function checkConnection() {
+    if (!apiBase) { setStatus('', 'Not connected — paste the backend URL above'); return; }
+    setStatus('', 'Connecting…');
+    try {
+      var res = await fetch(apiBase + '/web-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        body: JSON.stringify({ session_id: sessionId, message: '__ping__' })
+      });
+      if (!res.ok) throw new Error('bad status ' + res.status);
+      var data = await res.json();
+      setStatus('connected', 'Connected — say hello below');
+      connected = true;
+      chatInput.disabled = false;
+      sendBtn.disabled = false;
+      if (data.reply) {
+        addBubble('bot', data.reply);
+        renderFields(data.state || {});
+      }
+    } catch (e) {
+      setStatus('error', "Couldn't reach that URL — check the tunnel is running");
+      connected = false;
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+    }
+  }
+
+  connectBtn.addEventListener('click', function() {
+    apiBase = apiBaseInput.value.trim().replace(/\/$/, '');
+    localStorage.setItem('loopline_demo_api_base', apiBase);
+    chatLog.innerHTML = '';
+    checkConnection();
+  });
+
+  restartBtn.addEventListener('click', function() {
+    newSession();
+    chatLog.innerHTML = '';
+    renderFields({});
+    if (connected) checkConnection();
+  });
+
+  async function sendMessage() {
+    var text = chatInput.value.trim();
+    if (!text || !connected) return;
+    addBubble('user', text);
+    chatInput.value = '';
+    sendBtn.disabled = true;
+    chatInput.disabled = true;
+    var typingEl = addTyping();
+
+    try {
+      var res = await fetch(apiBase + '/web-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        body: JSON.stringify({ session_id: sessionId, message: text })
+      });
+      var data = await res.json();
+      typingEl.remove();
+      if (data.error) {
+        addBubble('bot', 'Error: ' + data.error);
+      } else {
+        addBubble('bot', data.reply);
+        renderFields(data.state || {});
+      }
+    } catch (e) {
+      typingEl.remove();
+      addBubble('bot', "Couldn't reach the backend — check the tunnel is still running.");
+    } finally {
+      sendBtn.disabled = false;
+      chatInput.disabled = false;
+      chatInput.focus();
+    }
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  if (apiBase) checkConnection();
+})();
+</script>
+
+</body>
+</html>

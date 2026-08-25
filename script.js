@@ -1,22 +1,3 @@
-(function() {
-  var nodes = document.querySelectorAll('.flow-node');
-  var i = 0;
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function step() {
-    nodes.forEach(function(n) { n.classList.remove('active'); });
-    nodes[i].classList.add('active');
-    i = (i + 1) % nodes.length;
-  }
-
-  if (!reduced) {
-    step();
-    setInterval(step, 1100);
-  } else if (nodes.length) {
-    nodes[0].classList.add('active');
-  }
-})();
-
 /* ---------- Sliding nav underline (Apple/Stripe-style hover line) + scrollspy ---------- */
 (function() {
   var navLinks = document.querySelector('.nav-links');
