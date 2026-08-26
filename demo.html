@@ -189,21 +189,34 @@
     padding: 0;
   }
   .restart-link:hover { color: var(--ink); }
+
+  @media (max-width: 480px) {
+    .demo-wrap { padding: 40px 16px 72px; }
+    .chat-log { height: 340px; padding: 16px; }
+    .setup-row { flex-direction: column; }
+    .setup-row button { width: 100%; }
+    .bubble { max-width: 88%; }
+  }
 </style>
 </head>
 <body>
 
 <header>
   <div class="wrap nav">
-    <div class="logo"><span class="dot"></span>Loopline</div>
-    <nav class="nav-links">
+    <a href="index.html" class="logo"><span class="dot"></span>Loopline</a>
+    <nav class="nav-links" id="navLinks">
       <a href="index.html#services">Services</a>
       <a href="index.html#work">Work</a>
       <a href="index.html#process">Process</a>
       <a href="index.html#contact">Contact</a>
       <a href="product.html">Products</a>
     </nav>
-    <a href="index.html#contact" class="btn btn-sm">Start a project</a>
+    <div class="nav-right">
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="index.html#contact" class="btn btn-sm">Start a project</a>
+    </div>
   </div>
 </header>
 
@@ -389,6 +402,8 @@
   if (apiBase) checkConnection();
 })();
 </script>
+
+<script src="script.js"></script>
 
 </body>
 </html>

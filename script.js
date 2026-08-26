@@ -1,3 +1,41 @@
+/* ---------- Mobile nav toggle ---------- */
+(function() {
+  var toggle = document.getElementById('navToggle');
+  var links = document.getElementById('navLinks');
+  if (!toggle || !links) return;
+
+  function closeMenu() {
+    links.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+  function openMenu() {
+    links.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  toggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (links.classList.contains('open')) closeMenu();
+    else openMenu();
+  });
+
+  links.querySelectorAll('a').forEach(function(a) {
+    a.addEventListener('click', closeMenu);
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!links.contains(e.target) && !toggle.contains(e.target)) closeMenu();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeMenu();
+  });
+
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 860) closeMenu();
+  });
+})();
+
 /* ---------- Sliding nav underline (Apple/Stripe-style hover line) + scrollspy ---------- */
 (function() {
   var navLinks = document.querySelector('.nav-links');
@@ -122,7 +160,9 @@
   });
 })();
 
-document.getElementById('contact-form').addEventListener('submit', function(e) {
+var contactForm = document.getElementById('contact-form');
+if (contactForm) {
+contactForm.addEventListener('submit', function(e) {
   e.preventDefault();
   var form = this;
   var status = document.getElementById('form-status');
@@ -162,6 +202,7 @@ document.getElementById('contact-form').addEventListener('submit', function(e) {
       submitBtn.textContent = originalLabel;
     });
 });
+}
 
 /* ---------- Recent work: 3D circular carousel ---------- */
 (function() {
