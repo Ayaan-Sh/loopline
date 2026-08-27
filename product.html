@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>(function(){try{var t=localStorage.getItem('loopline_theme');if(t!=='light'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loopline Product  AI lead qualification for real estate</title>
+<title>Loopline Product — AI lead qualification for real estate</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=3">
 <style>
   /* ---------- Product hero ---------- */
   .prod-eyebrow {
@@ -120,7 +121,7 @@
   }
   .stage-pill.s2 { background: var(--amber-tint); color: var(--amber-deep); border-color: transparent; }
   .stage-pill.s3 { background: var(--teal-tint); color: var(--teal); border-color: transparent; }
-  .stage-pill.s4 { background: var(--teal); color: #fff; border-color: transparent; }
+  .stage-pill.s4 { background: var(--teal-solid); color: #fff; border-color: transparent; }
   .stage-pill.s5 { background: var(--ink); color: var(--paper); border-color: transparent; }
   .stage-arrow { color: var(--line); font-size: 14px; }
   .stage-caption {
@@ -207,9 +208,9 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; gap: 10px; padding: 20px;
   }
-  .lock-badge { width: 42px; height: 42px; border-radius: 50%; background: var(--paper); display: flex; align-items: center; justify-content: center; }
-  .lock-badge svg { width: 18px; height: 18px; stroke: var(--ink); fill: none; stroke-width: 2; }
-  .lock-overlay strong { font-size: 14px; color: var(--paper); }
+  .lock-badge { width: 42px; height: 42px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; }
+  .lock-badge svg { width: 18px; height: 18px; stroke: #12121A; fill: none; stroke-width: 2; }
+  .lock-overlay strong { font-size: 14px; color: #FFFFFF; }
   .lock-overlay span { font-size: 12.5px; color: #C9C6D6; max-width: 34ch; }
 
   /* ---------- Final CTA ---------- */
@@ -253,6 +254,10 @@
       <a href="product.html">Products</a>
     </nav>
     <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">
+        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
       <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
         <span></span><span></span><span></span>
       </button>
@@ -269,7 +274,7 @@
       In private build · real estate pilots
     </span>
     <h1 class="hero-headline">Every lead qualified. <em>Before your team calls back.</em></h1>
-    <p class="hero-sub">Loopline is the lead-engagement platform we're building for real estate teams. Voice, WhatsApp and SMS agents pick up new enquiries within seconds, ask the questions that actually matter, and hand your team a lead that's ready for a real conversation  not a name and a number.</p>
+    <p class="hero-sub">Loopline is the lead-engagement platform we're building for real estate teams. Voice, WhatsApp and SMS agents pick up new enquiries within seconds, ask the questions that actually matter, and hand your team a lead that's ready for a real conversation — not a name and a number.</p>
     <div class="hero-ctas">
       <a href="index.html#contact" class="btn">Request a walkthrough</a>
       <a href="#how" class="btn btn-ghost">See how it works</a>
@@ -283,7 +288,7 @@
         <div class="qbubble-row agent"><div class="qbubble">Got it. What budget range are you working with, and roughly when are you looking to close?</div></div>
         <div class="qbubble-row lead"><div class="qbubble">Around 90L–1Cr, within this quarter</div></div>
       </div>
-      <div class="qual-status"><span class="pulse"></span>Slot-filling in progress  budget ✓ purpose ✓ timeline ✓</div>
+      <div class="qual-status"><span class="pulse"></span>Slot-filling in progress — budget ✓ purpose ✓ timeline ✓</div>
     </div>
     <p class="flow-caption">// example: a live qualification chat, no human on the other end yet</p>
   </div>
@@ -296,7 +301,7 @@
         <div class="section-eyebrow">How it works</div>
         <h2 class="section-title">From first message to a lead worth your team's time.</h2>
       </div>
-      <p class="section-desc">One system owns the whole thing  no spreadsheet in the middle, no lead sitting in a queue.</p>
+      <p class="section-desc">One system owns the whole thing — no spreadsheet in the middle, no lead sitting in a queue.</p>
     </div>
 
     <div class="how-list">
@@ -311,7 +316,7 @@
         <span class="how-num">02</span>
         <div>
           <h3>The AI agent qualifies it</h3>
-          <p>A WhatsApp, SMS or voice agent opens the conversation and works through a structured set of questions  purpose, budget, location, timeline  filling in each slot as the lead responds, in their own words, not a rigid form.</p>
+          <p>A WhatsApp, SMS or voice agent opens the conversation and works through a structured set of questions — purpose, budget, location, timeline — filling in each slot as the lead responds, in their own words, not a rigid form.</p>
         </div>
       </div>
       <div class="how-step">
@@ -325,7 +330,7 @@
         <span class="how-num">04</span>
         <div>
           <h3>Your team gets a lead worth calling</h3>
-          <p>Qualified leads land in one inbox with the full transcript and the answers already gathered  and where a site visit's been booked, the slot is already on the calendar.</p>
+          <p>Qualified leads land in one inbox with the full transcript and the answers already gathered — and where a site visit's been booked, the slot is already on the calendar.</p>
         </div>
       </div>
     </div>
@@ -343,7 +348,7 @@
         <span class="stage-arrow">→</span>
         <span class="stage-pill s5">SV Booked</span>
       </div>
-      <p class="stage-caption">Stage updates run off the actual conversation  not a checkbox someone has to remember to tick.</p>
+      <p class="stage-caption">Stage updates run off the actual conversation — not a checkbox someone has to remember to tick.</p>
     </div>
   </div>
 </section>
@@ -377,7 +382,7 @@
       <div class="feature-card">
         <div class="f-icon"><svg viewBox="0 0 24 24"><path d="M4 19V5m6 14V9m6 10V13m4 6H2"/></svg></div>
         <h3>Ad planner</h3>
-        <p>Turn a goal and a budget into a media plan, then spin up a paused campaign on Meta and Google  nothing spends until a human reviews and activates it.</p>
+        <p>Turn a goal and a budget into a media plan, then spin up a paused campaign on Meta and Google — nothing spends until a human reviews and activates it.</p>
       </div>
       <div class="feature-card">
         <div class="f-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M4 15l4-4 4 4 4-6 4 4"/></svg></div>
@@ -387,7 +392,7 @@
       <div class="feature-card">
         <div class="f-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-1a7 7 0 0 1 14 0v1"/></svg></div>
         <h3>Team handoff</h3>
-        <p>Any conversation can be handed to a human at any point, with the transcript, the answers gathered so far, and the current stage attached  no re-asking what's already been said.</p>
+        <p>Any conversation can be handed to a human at any point, with the transcript, the answers gathered so far, and the current stage attached — no re-asking what's already been said.</p>
       </div>
     </div>
   </div>
@@ -417,7 +422,7 @@
       <div class="segment-card">
         <span class="status-tag status-scope">Independent agents</span>
         <h3>Solo & small teams</h3>
-        <p>A WhatsApp number that never misses an enquiry, even after hours  so leads aren't just going stale in an unread chat.</p>
+        <p>A WhatsApp number that never misses an enquiry, even after hours — so leads aren't just going stale in an unread chat.</p>
       </div>
       <div class="segment-card">
         <span class="status-tag status-neutral">Portals & aggregators</span>
@@ -451,7 +456,7 @@
       </div>
       <div class="lock-overlay">
         <div class="lock-badge"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg></div>
-        <strong>Live dashboard  invite only</strong>
+        <strong>Live dashboard — invite only</strong>
         <span>This is where leads, conversations, campaigns and the pipeline above actually run. Access is limited to our team and pilot clients while it's in active development.</span>
       </div>
     </div>
@@ -474,7 +479,7 @@
   </div>
 </footer>
 
-<script src="script.js"></script>
+<script src="script.js?v=3"></script>
 
 </body>
 </html>

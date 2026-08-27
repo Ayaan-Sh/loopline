@@ -1,3 +1,22 @@
+/* ---------- Dark mode toggle ---------- */
+(function() {
+  var toggle = document.getElementById('themeToggle');
+  if (!toggle) return;
+  var root = document.documentElement;
+  var STORAGE_KEY = 'loopline_theme';
+
+  toggle.addEventListener('click', function() {
+    var isDark = root.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      root.removeAttribute('data-theme');
+      try { localStorage.setItem(STORAGE_KEY, 'light'); } catch (e) {}
+    } else {
+      root.setAttribute('data-theme', 'dark');
+      try { localStorage.setItem(STORAGE_KEY, 'dark'); } catch (e) {}
+    }
+  });
+})();
+
 /* ---------- Mobile nav toggle ---------- */
 (function() {
   var toggle = document.getElementById('navToggle');
