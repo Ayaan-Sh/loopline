@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loopline Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<aside class="rail">
+  <div class="rail-brand">
+    <span class="rail-loop" aria-hidden="true"></span>
+    <span>Loopline</span>
+  </div>
+  <nav class="rail-nav">
+    <button class="rail-link is-current" data-view="overview">Overview</button>
+    <button class="rail-link" data-view="campaigns">Ads</button>
+    <button class="rail-link" data-view="leads">Leads<span class="rail-count" id="railLeadCount"></span></button>
+    <button class="rail-link" data-view="bot">Bot</button>
+    <button class="rail-link" data-view="settings">Setup</button>
+  </nav>
+  <div class="rail-foot">
+    <button class="rail-theme" id="themeToggle" type="button" aria-label="Switch colour theme">Theme</button>
+    <p class="rail-mode" id="railMode">connecting…</p>
+  </div>
+</aside>
+
+<main class="stage">
+
+  <div class="banner" id="sampleBanner" hidden>
+    <strong>Sample data.</strong>
+    <span>Every number and lead below is generated so you can see the product working. Add your Meta token and Supabase keys in Setup to switch to live data.</span>
+  </div>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section class="view is-active" id="view-overview">
+    <header class="view-head">
+      <div>
+        <h1>What your ad spend is actually doing</h1>
+        <p class="lede">Spend, leads, and what happened to those leads after they landed in the pipeline.</p>
+      </div>
+      <div class="head-tools">
+        <select id="rangeSelect" class="control" aria-label="Date range">
+          <option value="today">Today</option>
+          <option value="last_7d">Last 7 days</option>
+          <option value="last_30d" selected>Last 30 days</option>
+          <option value="last_90d">Last 90 days</option>
+        </select>
+        <button class="btn btn-sm" id="refreshBtn" type="button">Refresh</button>
+      </div>
+    </header>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="split">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Spend against leads</h2>
+          <div class="legend">
+            <span class="key key-spend">Spend</span>
+            <span class="key key-leads">Leads</span>
+          </div>
+        </div>
+        <div class="chart-hold" id="chart"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>Pipeline right now</h2></div>
+        <div class="funnel" id="funnel"></div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Campaign performance</h2>
+        <p class="panel-note">Cost per qualified lead is the number that matters — it counts only leads the bot moved past qualification.</p>
+      </div>
+      <div class="table-hold">
+        <table class="grid" id="campaignPerf">
+          <thead>
+            <tr><th>Campaign</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>CTR</th><th>Leads</th><th>Cost / lead</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- ============ CAMPAIGNS ============ -->
+  <section class="view" id="view-campaigns">
+    <header class="view-head">
+      <div>
+        <h1>Ads</h1>
+        <p class="lede">Pause, resume, or change budgets here. New campaigns are created paused so nothing spends before you look at it.</p>
+      </div>
+      <button class="btn btn-sm" id="newCampaignBtn" type="button">New campaign</button>
+    </header>
+
+    <div class="table-hold panel">
+      <table class="grid" id="campaignTable">
+        <thead>
+          <tr><th>Campaign</th><th>Status</th><th>Objective</th><th>Daily budget</th><th>Controls</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <section class="panel form-panel" id="campaignForm" hidden>
+      <div class="panel-head">
+        <h2>Create a campaign</h2>
+        <button class="link-btn" type="button" data-close-form>Cancel</button>
+      </div>
+      <form id="createCampaign" class="form-grid">
+        <label class="field span-2">Campaign name
+          <input name="name" class="control" required placeholder="Kharadi 3BHK — Site Visit">
+        </label>
+        <label class="field">Objective
+          <select name="objective" class="control">
+            <option value="OUTCOME_LEADS">Lead generation</option>
+            <option value="OUTCOME_TRAFFIC">Traffic</option>
+            <option value="OUTCOME_ENGAGEMENT">Engagement</option>
+            <option value="OUTCOME_AWARENESS">Awareness</option>
+          </select>
+        </label>
+        <label class="field">Daily budget (₹)
+          <input name="dailyBudget" class="control" type="number" min="100" value="1500" required>
+        </label>
+        <label class="field">Audience age
+          <span class="pair">
+            <input name="ageMin" class="control" type="number" min="18" max="65" value="27">
+            <input name="ageMax" class="control" type="number" min="18" max="65" value="55">
+          </span>
+        </label>
+        <label class="field">Lead form ID
+          <select name="leadFormId" class="control" id="leadFormSelect"><option value="">None — send to website</option></select>
+        </label>
+        <label class="field span-2">Primary text
+          <textarea name="primaryText" class="control" rows="3" placeholder="Ready-possession 3BHKs in Kharadi, starting 92L. Book a site visit this weekend."></textarea>
+        </label>
+        <label class="field">Headline
+          <input name="headline" class="control" placeholder="3BHK in Kharadi">
+        </label>
+        <label class="field">Call to action
+          <select name="cta" class="control">
+            <option value="LEARN_MORE">Learn more</option>
+            <option value="SIGN_UP">Sign up</option>
+            <option value="BOOK_TRAVEL">Book now</option>
+            <option value="GET_QUOTE">Get quote</option>
+            <option value="CONTACT_US">Contact us</option>
+          </select>
+        </label>
+        <label class="field span-2">Landing page link
+          <input name="link" class="control" type="url" placeholder="https://yoursite.com/kharadi">
+        </label>
+        <div class="form-actions span-2">
+          <button class="btn btn-sm" type="submit">Create paused campaign</button>
+          <p class="form-note" id="campaignFormNote"></p>
+        </div>
+      </form>
+    </section>
+  </section>
+
+  <!-- ============ LEADS ============ -->
+  <section class="view" id="view-leads">
+    <header class="view-head">
+      <div>
+        <h1>Leads</h1>
+        <p class="lede">Sorted by score. Hot means call today.</p>
+      </div>
+      <div class="head-tools">
+        <button class="btn btn-sm btn-ghost" id="syncMetaBtn" type="button">Pull from Meta</button>
+        <button class="btn btn-sm btn-ghost" id="runLadderBtn" type="button">Run follow-ups</button>
+        <button class="btn btn-sm" id="newLeadBtn" type="button">Add lead</button>
+      </div>
+    </header>
+
+    <div class="filters">
+      <input id="leadSearch" class="control" type="search" placeholder="Search name, phone, area…">
+      <div class="chips" id="bandChips">
+        <button class="chip is-on" data-band="">All</button>
+        <button class="chip chip-hot" data-band="HOT">Hot</button>
+        <button class="chip chip-warm" data-band="WARM">Warm</button>
+        <button class="chip chip-cold" data-band="COLD">Cold</button>
+      </div>
+      <select id="stageFilter" class="control">
+        <option value="">Every stage</option>
+      </select>
+    </div>
+
+    <div class="table-hold panel">
+      <table class="grid grid-leads" id="leadTable">
+        <thead>
+          <tr><th>Score</th><th>Lead</th><th>Source</th><th>Budget</th><th>Stage</th><th>Last touch</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="empty" id="leadEmpty" hidden>No leads match that filter. Clear the search, or pull a fresh batch from Meta.</p>
+    </div>
+
+    <section class="panel form-panel" id="leadForm" hidden>
+      <div class="panel-head">
+        <h2>Add a lead</h2>
+        <button class="link-btn" type="button" data-close-form>Cancel</button>
+      </div>
+      <form id="createLead" class="form-grid">
+        <label class="field">Name<input name="full_name" class="control" placeholder="Aditi Kulkarni"></label>
+        <label class="field">Phone<input name="phone" class="control" placeholder="+919822010045"></label>
+        <label class="field">Email<input name="email" class="control" type="email" placeholder="name@example.com"></label>
+        <label class="field">Area<input name="locality" class="control" placeholder="Kharadi"></label>
+        <label class="field">Budget (₹)<input name="budget" class="control" type="number" placeholder="9500000"></label>
+        <label class="field">Configuration<input name="property_type" class="control" placeholder="3BHK"></label>
+        <label class="field">Timeline
+          <select name="timeline" class="control">
+            <option value="">Not known</option>
+            <option value="30d">Within a month</option>
+            <option value="90d">1–3 months</option>
+            <option value="180d">3–6 months</option>
+            <option value="365d">Over 6 months</option>
+          </select>
+        </label>
+        <label class="field">Source
+          <select name="source" class="control">
+            <option value="manual">Added by hand</option>
+            <option value="website">Website</option>
+            <option value="referral">Referral</option>
+            <option value="walk_in">Walk-in</option>
+            <option value="outbound_list">Outbound list</option>
+          </select>
+        </label>
+        <label class="field span-2 checkline">
+          <input name="consent" type="checkbox" checked> This person agreed to be contacted
+        </label>
+        <div class="form-actions span-2">
+          <button class="btn btn-sm" type="submit">Save lead</button>
+          <p class="form-note" id="leadFormNote"></p>
+        </div>
+      </form>
+    </section>
+  </section>
+
+  <!-- ============ BOT ============ -->
+  <section class="view" id="view-bot">
+    <header class="view-head">
+      <div>
+        <h1>Bot console</h1>
+        <p class="lede">Paste something a lead might send. You get the reply the bot would return, the fields it pulled out, and the score it produced.</p>
+      </div>
+    </header>
+
+    <div class="split">
+      <section class="panel">
+        <div class="panel-head"><h2>Try a message</h2></div>
+        <div class="bot-pad">
+          <div class="samples" id="botSamples">
+            <button class="chip" type="button">Hi, saw your Kharadi ad. 3BHK price?</button>
+            <button class="chip" type="button">Budget around 95 lakh, loan approved. Can I visit Saturday?</button>
+            <button class="chip" type="button">Just looking for now, maybe next year</button>
+            <button class="chip" type="button">Stop messaging me</button>
+          </div>
+          <textarea id="botInput" class="control" rows="3" placeholder="Type what the lead said…"></textarea>
+          <div class="bot-actions">
+            <select id="botLead" class="control"><option value="">Test without saving to a lead</option></select>
+            <button class="btn btn-sm" id="botSend" type="button">Run</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>What the bot understood</h2></div>
+        <div class="bot-out" id="botOut">
+          <p class="empty">Run a message and the reply, extracted fields, and score breakdown show up here.</p>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>How the score is built</h2>
+        <p class="panel-note">Six weighted signals, minus penalties, clamped to 100. Tune the weights in <code>server/lib/scoring.js</code>.</p>
+      </div>
+      <div class="weights" id="weights"></div>
+    </section>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="view" id="view-settings">
+    <header class="view-head">
+      <div>
+        <h1>Setup</h1>
+        <p class="lede">Four connections turn the sample data into live data. Each one works on its own — connect them in any order.</p>
+      </div>
+    </header>
+
+    <div class="status-grid" id="statusGrid"></div>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Connection steps</h2></div>
+      <ol class="steps">
+        <li>
+          <h3>Database</h3>
+          <p>Create a Supabase project, open the SQL editor, and run <code>supabase/schema.sql</code>. Put the project URL and the service role key into <code>.env</code>.</p>
+        </li>
+        <li>
+          <h3>Meta Ads</h3>
+          <p>In Business Settings create a system user, give it your ad account and page, and generate a token with <code>ads_read</code>, <code>ads_management</code> and <code>leads_retrieval</code>. Paste it as <code>META_ACCESS_TOKEN</code> with your <code>act_…</code> account ID.</p>
+        </li>
+        <li>
+          <h3>Instant leads</h3>
+          <p>In the Meta app dashboard subscribe to the <code>leadgen</code> webhook and point it at <code>/api/chat/webhook/meta</code> using the verify token from your <code>.env</code>. Leads then appear here seconds after someone submits a form.</p>
+        </li>
+        <li>
+          <h3>Replies and calls</h3>
+          <p>Point your Twilio number's messaging webhook at <code>/api/chat/webhook/twilio</code>. The bot answers inbound messages, fills in missing fields, and re-scores the lead on every reply. Add SMTP details for email.</p>
+        </li>
+      </ol>
+    </section>
+  </section>
+
+</main>
+
+<!-- ============ LEAD DRAWER ============ -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="Lead detail">
+  <div class="drawer-inner" id="drawerBody"></div>
+</aside>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
